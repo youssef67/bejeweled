@@ -118,7 +118,7 @@ La page du jeu se découpe en 4 principaux éléments qui se distingue par ligne
 [] Si pas d'images successives ---> décrémenter le nombre d'essai dans le reducer
 [] A chaque décrémentation, vérifier si le nombre d'essai est toujours suffisant pour jouer, le cas echéant mettre fin à la partie
 [] Si images successives, calculer le score à incrémenter à la barre de vie
-[] mettre à jour la grille en supprimant les images concernées 
+[] mettre à jour la grille en supprimant les images concernées
 
 L'opération doit pouvoir se répéter tant qu'aucune conditions d'arrêt ne se présente
 
@@ -224,6 +224,12 @@ Si recharge du bouton, quelle frequence ?
     [] Passer le texte RESTART à PAUSE
     [] Activer les boutons
 
+*********** RELANCER UNE PARTIE ***************
+
+[] Sauvegarder le score et l'id du joeur de la partie qui vient de se terminer
+[] Permettre la regénération d'une grille de jeu
+[] Algo qui vérifie si la grille présente 3 images successives sur le plan horizontal et vertical, le cas echéant régénérer la grille
+
 *********** FIN DE PARTIE ***************
 
 3 confditions pour une fin de partie
@@ -231,11 +237,14 @@ Si recharge du bouton, quelle frequence ?
 - jauge de vie qui atteint 0
 - Lors du lancement du hint, pas d'occurence trouvée
 
+[] Sauvegarder le score et l'id du joeur de la partie qui vient de se terminer
 [] En fin de partie afficher une modal 
     - Qui montre le score de la partie jouée
     - Du classement des 6 meilleurs scores
     - Un bouton qui propose de rejouer
     - UN bouton qui propose de quitter
+
+
 
 
 *****************************************
