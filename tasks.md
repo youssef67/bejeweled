@@ -141,16 +141,16 @@ Tant que TROUVE = true
     Cette algo doit permettre de 
 
    - si trouve images successive   
-     - determiner le nombre de d'images concernées
-       il peut avoir plusieurs series d'images
-     - prendre en compte les priorités
-     - calculer la somme de points généré
-     - incrementer la variable globale
-     - Effacer les images concernées
-     - Appel de ALGO POUR MISE A JOUR DE LA GRILLE pour la MAJ de la grille
-          - Sinon
+             - determiner le nombre de d'images concernées
+               il peut avoir plusieurs series d'images
+             - prendre en compte les priorités
+             - calculer la somme de points généré
+             - incrementer la variable globale
+             - Effacer les images concernées
+             - Appel de ALGO POUR MISE A JOUR DE LA GRILLE pour la MAJ de la grille
+     - Sinon
             TROUVE = false
-            Fin Tant que
+     Fin Tant que
 
 On retourne le nombre de points
 ```
@@ -235,7 +235,7 @@ Le reducer me parait nécessaire, avec une fonction didUpdate du reducer, nous p
 
 
 
-*** CALCUL DU SCORE A INCREMENTER *****
+*** CALCUL DU SCORE A INCREMENTER ***
 
     [] Récupérer le nombre de point actuellement présent dans l'input SCORE présent dans le reducer GAME_SLEEVE
     [] Aditionner le nb points avec le score généré par les images successives
@@ -278,123 +278,123 @@ Le reducer me parait nécessaire, avec une fonction didUpdate du reducer, nous p
 
 ###### Si on égal le palier objectif
 
-                Exemple sur le début de partie pour 3 images alignés et 50 points obtenu :
+    Exemple sur le début de partie pour 3 images alignés et 50 points obtenu :
+
+        [] Récupérer les inforamtions suivants dans le reducer GAME_SLEEVE
+
+        Actuellement, le score est de 50
+        le palier objectif est de 100
+        niveau actuel ---> niveau 1
+
+        On obtient 50 points pour avoir aligner 3 images
+
+        50 * 1 = 50
+
+        50 + 50 = 100
+
+        100 est égal au palier objectif présent dans le reducer et qui a pour valeur 100
     
-                    [] Récupérer les inforamtions suivants dans le reducer GAME_SLEEVE
+    [] Mettre à jour l'input SCORE
+    [] Récupérer le palier objectif present dans le reducer  
+    [] diviser le palier objectif par 100 pour obtenir le niveau atteint
+    [] Incrementer le palier objectif de 100 pour obtenir le nouveau palier
+    [] Mettre à jour dans le reducer GAME_SLEEVE, le palier objectif et le niveau
+    [] Mettre à jour le score
+    [] Mettre à jour la progress bar
     
-                    Actuellement, le score est de 50
-                    le palier objectif est de 100
-                    niveau actuel ---> niveau 1
-    
-                    On obtient 50 points pour avoir aligner 3 images
-    
-                    50 * 1 = 50
-    
-                    50 + 50 = 100
-    
-                    100 est égal au palier objectif présent dans le reducer et qui a pour valeur 100
-                
-                [] Mettre à jour l'input SCORE
-                [] Récupérer le palier objectif present dans le reducer  
-                [] diviser le palier objectif par 100 pour obtenir le niveau atteint
-                [] Incrementer le palier objectif de 100 pour obtenir le nouveau palier
-                [] Mettre à jour dans le reducer GAME_SLEEVE, le palier objectif et le niveau
-                [] Mettre à jour le score
-                [] Mettre à jour la progress bar
-                
-                    Exemple en milieu de partie pour 3 images alignés et 50 points obtenu :
-    
-                        [] Récupérer les inforamtions suivants dans le reducer GAME_SLEEVE
-    
-                        Actuellement, le score est de 2550
-                        le palier objectif est de 5 000
-                        niveau actuel ---> niveau 49
-    
-                        On obtient 50 points pour avoir aligner 3 images
-    
-                        50 * 49 = 2450
-    
-                        2 550 + 2 450 = 5 000
-    
-                        5 000 est égal au palier objectif présent dans le reducer et qui a pour valeur 5 000
-    
-                        5 000 / 100 = 50 ---> nouveau niveau atteint
-                        5 000 + 100 = 5 100 ----> nouveau palier objectif
+        Exemple en milieu de partie pour 3 images alignés et 50 points obtenu :
+
+            [] Récupérer les inforamtions suivants dans le reducer GAME_SLEEVE
+
+            Actuellement, le score est de 2550
+            le palier objectif est de 5 000
+            niveau actuel ---> niveau 49
+
+            On obtient 50 points pour avoir aligner 3 images
+
+            50 * 49 = 2450
+
+            2 550 + 2 450 = 5 000
+
+            5 000 est égal au palier objectif présent dans le reducer et qui a pour valeur 5 000
+
+            5 000 / 100 = 50 ---> nouveau niveau atteint
+            5 000 + 100 = 5 100 ----> nouveau palier objectif
 
 ###### Si on dépasse le palier objectif
 
-            Exemple sur le début de partie pour 4 images alignés et 150 points obtenu :
-    
-                [] Récupérer les inforamtions suivants dans le reducer GAME_SLEEVE
-    
-                    Actuellement, le score est de 0
-                    le palier objectif est de 100
-                    niveau actuel ---> niveau 1
-    
-                    On obtient 150 points pour avoir aligner 4 images
-    
-                    150 * 1 = 150
-    
-                    0 + 150 = 150
-    
-                    150 est supérieur au palier objectif présent dans le reducer et qui a pour valeur 100
-    
-                [] On va diviser le score par 100 pour obtenir le niveau atteint 
-    
-                        150 / 100 = 1.5
-    
-                [] arrondir a l'entier du bas pour obtenir le niveau atteint et mettre à jour le reducer GAME_SLEEVE
-    
-                    exemple : 
-                        Math.floor(1.5) = 1
-    
-                [] incrementer le niveau de 1 pour obtenir le nouveau palier objectif
-    
-                    exemple : 
-                        1 + 1 = 2 * 100 = 200
-    
-                [] multiplier par 100 pour obtenir le nouveau palier objectif
-    
-                    exemple : 
-                        2 * 100 = 200
-            
-                [] Mettre à jour dans le reducer GAME_SLEEVE, le palier objectif et le niveau
-                [] Mettre à jour le score
-                [] Mettre à jour la progress bar
-    
-            Exemple en milieu de partie pour 3 images alignés et 50 points obtenu :
-    
-                [] Récupérer les inforamtions suivants dans le reducer GAME_SLEEVE
-    
-                    Actuellement, le score est de 3 657
-                    le palier objectif est de 4 200 
-                    niveau actuel ---> niveau 41
-    
-                    On obtient 50 points pour avoir aligner 3 images
-    
-                    50 * 41 = 2 050
-    
-                    3 657 + 2 050 = 5 707
-    
-                    5 707 est supérieur au palier objectif présent dans le reducer et qui a pour valeur 4 200
-    
-                [] On va diviser le score par 100 pour obtenir le niveau atteint 
-    
-                    5 707 / 100 = 57.07
-    
-                [] arrondir a l'entier du bas pour obtenir le niveau atteint et mettre à jour le reducer GAME_SLEEVE
-    
-                    exemple : 
-                        Math.floor(57.07) = 57
-    
-                [] incrementer le niveau de 1 pour obtenir le nouveau palier objectif
-    
-                    exemple : 
-                        57 + 1 = 58 * 100 = 5 800
-    
-                [] Mettre à jour dans le reducer GAME_SLEEVE, le palier objectif et le niveau
-                [] Mettre à jour le score
-                [] Mettre à jour la progress bar
+Exemple sur le début de partie pour 4 images alignés et 150 points obtenu :
+
+    [] Récupérer les inforamtions suivants dans le reducer GAME_SLEEVE
+
+        Actuellement, le score est de 0
+        le palier objectif est de 100
+        niveau actuel ---> niveau 1
+
+        On obtient 150 points pour avoir aligner 4 images
+
+        150 * 1 = 150
+
+        0 + 150 = 150
+
+        150 est supérieur au palier objectif présent dans le reducer et qui a pour valeur 100
+
+    [] On va diviser le score par 100 pour obtenir le niveau atteint 
+
+            150 / 100 = 1.5
+
+    [] arrondir a l'entier du bas pour obtenir le niveau atteint et mettre à jour le reducer GAME_SLEEVE
+
+        exemple : 
+            Math.floor(1.5) = 1
+
+    [] incrementer le niveau de 1 pour obtenir le nouveau palier objectif
+
+        exemple : 
+            1 + 1 = 2 * 100 = 200
+
+    [] multiplier par 100 pour obtenir le nouveau palier objectif
+
+        exemple : 
+            2 * 100 = 200
+
+    [] Mettre à jour dans le reducer GAME_SLEEVE, le palier objectif et le niveau
+    [] Mettre à jour le score
+    [] Mettre à jour la progress bar
+
+Exemple en milieu de partie pour 3 images alignés et 50 points obtenu :
+
+    [] Récupérer les inforamtions suivants dans le reducer GAME_SLEEVE
+
+        Actuellement, le score est de 3 657
+        le palier objectif est de 4 200 
+        niveau actuel ---> niveau 41
+
+        On obtient 50 points pour avoir aligner 3 images
+
+        50 * 41 = 2 050
+
+        3 657 + 2 050 = 5 707
+
+        5 707 est supérieur au palier objectif présent dans le reducer et qui a pour valeur 4 200
+
+    [] On va diviser le score par 100 pour obtenir le niveau atteint 
+
+        5 707 / 100 = 57.07
+
+    [] arrondir a l'entier du bas pour obtenir le niveau atteint et mettre à jour le reducer GAME_SLEEVE
+
+        exemple : 
+            Math.floor(57.07) = 57
+
+    [] incrementer le niveau de 1 pour obtenir le nouveau palier objectif
+
+        exemple : 
+            57 + 1 = 58 * 100 = 5 800
+
+    [] Mettre à jour dans le reducer GAME_SLEEVE, le palier objectif et le niveau
+    [] Mettre à jour le score
+    [] Mettre à jour la progress bar
 
 *** MISE A JOUR DE LA PROGRESS BAR ***
 
