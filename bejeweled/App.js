@@ -1,14 +1,15 @@
 import { StyleSheet} from 'react-native';
 import React from 'react';
-import GridLayout from "./components/GridLayout";
-import AppProvider from './utils/AppProvider';
+import GridLayout from './components/GridLayout';
+import SquaresProvider from './context/SquaresProvider';
 
 
 export default function App() {
+  
   return (
-    <AppProvider>
+    <SquaresProvider>
       <GridLayout/>
-    </AppProvider>
+    </SquaresProvider>
   );
 }
 
