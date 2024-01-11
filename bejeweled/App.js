@@ -1,10 +1,14 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
-import GridLayout from "./components/gridLayout";
+import { StyleSheet} from 'react-native';
+import React from 'react';
+import GridLayout from "./components/GridLayout";
+import AppProvider from './utils/AppProvider';
+
 
 export default function App() {
   return (
-    <GridLayout/>
+    <AppProvider>
+      <GridLayout/>
+    </AppProvider>
   );
 }
 
@@ -16,3 +20,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
