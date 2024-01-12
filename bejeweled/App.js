@@ -1,7 +1,7 @@
 import { StyleSheet} from 'react-native';
 import React from 'react';
 import GridLayout from './components/GridLayout';
-import SquaresProvider from './context/SquaresProvider';
+import SquaresProvider from './context/GameProvider';
 
 
 export default function App() {
