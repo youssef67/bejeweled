@@ -1,4 +1,4 @@
-import { StyleSheet, View, Dimensions } from 'react-native';
+import { StyleSheet, View, Alert } from 'react-native';
 // import SquaresContext from '../context/SquaresContext';
 import Square from './Square';
 import  React, {useEffect, useState, useRef} from 'react';
@@ -8,8 +8,7 @@ function GridLayout() {
 
     const gridRefs = useRef([])
     var index = 0
-    var compteur = 0;
-    const [firstImageInfo, setFirstImageInfo] = useState(null)
+    const [imagesInfo, setImagesInfo] = useState(null)
     const [adjacentSquares, setAdjacentSquares] = useState(null)
 
     const initialGridLayout = Array.from({ length : 8}, (_, rowIndex) => (
@@ -27,55 +26,62 @@ function GridLayout() {
     const [gridLayout, setGridLayout] = useState(initialGridLayout)
 
     useEffect(() => {
+        if(imagesInfo !== null && 'first' in imagesInfo && 'seconde' in imagesInfo) {
 
-        console.log('adjacentSquares : ' + adjacentSquares)
+            if (adjacentSquares.includes(imagesInfo.seconde.idImage)) {
+                imagesInfo.first.squareRef.current.handleExchangeImage(imagesInfo.seconde.type, 'first');
+                imagesInfo.seconde.squareRef.current.handleExchangeImage(imagesInfo.first.type, 'second');
+            } else {
+                Alert.alert(
+                    "Erreur",
+                    "Le déplacement en peut se faire qu'avec une case adjacente",
+                    [
+                        {text: "OK", onPress: () => console.log("OK Pressed")},
+                    ],
+                    {cancelable: false}
+                );
+                
+                imagesInfo.first.squareRef.current.disableActiveSquare()
+                imagesInfo.seconde.squareRef.current.disableActiveSquare()
+            }
+        
 
-        if(firstImageInfo !== null && firstImageInfo.hasOwnProperty('firstSquareRef') && firstImageInfo.hasOwnProperty('secondeSquareRef')) {
+            setImagesInfo(null)
+            console.log(imagesInfo)
 
 
-            console.log("composant grid layout")
-            console.log(`le 1er clique (${firstImageInfo.firstType}) prend la place du 2eme clique (${firstImageInfo.secondeType})`)
+        //     //Verifier si succession image
 
-            firstImageInfo.firstSquareRef.current.handleExchangeImage(firstImageInfo.secondeType, 'first');
-            firstImageInfo.secondeSquareRef.current.handleExchangeImage(firstImageInfo.firstType, 'second');
+        //     //Si oui /// effacer image
 
-            setFirstImageInfo(null)
-            console.log(firstImageInfo)
-
-
-            //Verifier si succession image
-
-            //Si oui /// effacer image
-
-            // repeupler la grille
+        //     // repeupler la grille
         }
     
-    }, [firstImageInfo])
+    }, [imagesInfo])
 
 
 
-    function getInfoSquare(type, squareRef, id) {
-        console.log(`squareRef = ${squareRef.current}`)
+    function getInfoSquare(type, squareRef, idImage) {
 
+        setImagesInfo((prevImagesInfo) => {
+            if(prevImagesInfo === null) {
 
+                let upSquare = (idImage - 8) > 0 ? idImage - 8 : null
+                let downSquare = (idImage + 8) > 0 && (idImage + 8 < 64) ? idImage + 8 : null
+                let leftSquare = (idImage % 8) !== 0 ? idImage - 1 : null 
+                let rightSquare = ((idImage + 1) % 8) !== 0 ? idImage + 1 : null
 
-
-        setFirstImageInfo((prevFirstImageInfo) => {
-            console.log(prevFirstImageInfo)
-            if(prevFirstImageInfo === null) {
-                console.log('fonction test --- if --- value null')
-
-                let upSquare = (id - 8) > 0 ? id - 8 : null
-                let downSquare = (id + 8) > 0 ? id - 8 : null
-                let leftSquare = (id % 8) !== 0 ? id - 1 : null 
-                let rightSquare = ((id + 1) % 8) !== 0 ? id + 1 : null
-
+                // console.log(`upSquare ${upSquare}`)
+                // console.log(`downSquare ${downSquare}`)
+                // console.log(`leftSquare ${leftSquare}`)
+                // console.log(`rightSquare ${rightSquare}`)
+                
                 let objectAdjacentSquare = [upSquare, downSquare, leftSquare, rightSquare]
                 
                 setAdjacentSquares(objectAdjacentSquare)
-                return {...prevFirstImageInfo, firstType : type, firstSquareRef : squareRef}
+                return {first : { type : type, squareRef : squareRef }}
             } else {
-                return { ...prevFirstImageInfo, secondeType : type, secondeSquareRef : squareRef};
+                return { ...prevImagesInfo, seconde : { type : type, squareRef : squareRef, idImage : idImage }};
             }
         })
 

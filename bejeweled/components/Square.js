@@ -9,6 +9,7 @@ const Square = forwardRef((props, ref) => {
     
     const [requireImage, setRequireImage] = useState(getRequireImage(images[props.randomNumber]))
     const [typeImage, setType] = useState(images[props.randomNumber])
+    const [isActiveSquare, setIsActiveSquare] = useState(false)
 
    
     function getRequireImage(item) {
@@ -49,29 +50,28 @@ const Square = forwardRef((props, ref) => {
 
  
     useImperativeHandle(ref, () => ({
-        handleExchangeImage(newType, ordre) {
-
-            if(ordre === 'first') {
-                console.log("composant square")
-                console.log(`le 1er clique (${typeImage}) prends la place du 2eme clique (${newType})`)
-                console.log('-----------------')
-            }  
-
+        handleExchangeImage(newType) {
             setRequireImage(getRequireImage(newType))
             setType(newType)
+            setIsActiveSquare(!isActiveSquare)
+        },
+        disableActiveSquare() {
+            setIsActiveSquare(!isActiveSquare)
         }
     }))
 
+    const activeSquare = isActiveSquare ? styles.activeBackground : null
 
     function PassInfoGridLayout() {
-        console.log(typeImage)
-        console.log(requireImage)
-        console.log(`props id ${props.id}`)
         props.onPress(typeImage, ref, props.id)
+
+        setIsActiveSquare(!isActiveSquare)
     }
 
+
+
     return (
-        <TouchableOpacity style={styles.border} onPress={PassInfoGridLayout} >
+        <TouchableOpacity style={[styles.border, activeSquare]} onPress={PassInfoGridLayout} >
             <Image style={{width: 40}} source={requireImage} type={typeImage} ref={ref} id={props.id}/>
         </TouchableOpacity>
      );
@@ -83,6 +83,10 @@ const styles = StyleSheet.create({
         height : 43,
         borderWidth: 1, // Largeur de la bordure
         borderColor: 'black', // Couleur de la bordure
+       
+    }, 
+    activeBackground : {
+        backgroundColor : '#5784BA'
     }
 })
 
