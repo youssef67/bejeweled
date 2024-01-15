@@ -1,6 +1,6 @@
 import React from "react";
 import { createContext } from "react";
 
-const SquaresContext = createContext(undefined);
+const GameContext = createContext(undefined);
 
-export default SquaresContext
+export default GameContext

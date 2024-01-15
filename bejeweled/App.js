@@ -1,15 +1,15 @@
 import { StyleSheet} from 'react-native';
 import React from 'react';
 import GridLayout from './components/GridLayout';
-import SquaresProvider from './context/GameProvider';
+import GameProvider from './context/GameProvider';
 
 
 export default function App() {
   
   return (
-    <SquaresProvider>
+    <GameProvider>
       <GridLayout/>
-    </SquaresProvider>
+    </GameProvider>
   );
 }
 

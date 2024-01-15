@@ -1,155 +1,87 @@
-import {StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
-import  React, { useContext, useState, useRef, useEffect } from 'react';
+import {StyleSheet, TouchableOpacity, Image } from 'react-native';
+import  React, { useContext, useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 // import SquaresContext from '../context/GameContext';
 
+const images = ["cheval", "poulet", "chien", "oiseau", "pinguin", "cygne", "dragon", "moustique"]
 
-function Square(props) {
-
-    // State concerné par le Context SquareContext
-    // const {movesImage} = useContext(SquaresContext)
-    // const {setMovesImage} = useContext(SquaresContext)
-
-    // State lié au composant
-    // const [type, setType] = useState(props.type)
-    // const [idSquare, setIdSquare] = useState(props.id)
-
-    // State lié au composant au moment du clique
-    // ON aliment ce state, si ce composant a été cliqué en deuxiement
-    // const [like_uri, setUri] = useState(setRequireImage(props.type))
-
-
-
-    // console.log('first ID : ' + movesImage.firstIdSquare)
-    // console.log('seconde ID : ' + movesImage.secondeIdSquare)
-
-    //UseRef permet de récupérer le composant ainsi que ses différentes props
-    const ref = useRef(null)
-
-    useEffect(() => {
-
-        // if (movesImage.targetClick && movesImage.sourceClick) {
-
-        //     const el = ref.current
-        //     console.log(el)
-        //     // console.log(props)
-        // }
-
+const Square = forwardRef((props, ref) => {
 
     
-        
-    }, [])
+    const [requireImage, setRequireImage] = useState(getRequireImage(images[props.randomNumber]))
+    const [typeImage, setType] = useState(images[props.randomNumber])
 
-
-    function sendDataParent() {
-
-    }
-
-    
-    function setRequireImage(item) {
+   
+    function getRequireImage(item) {
         
         const animaux = {
-            abeille : require('../assets/images/abeille.png'),
-            araignee : require('../assets/images/araignee.png'),
-            chat : require('../assets/images/chat.png'),
-            faucon : require('../assets/images/faucon.png'),
-            hibou : require('../assets/images/hibou.png'),
-            lapin : require('../assets/images/lapin.png'),
+            cheval : require('../assets/images/cheval.png'),
+            chien : require('../assets/images/chien.png'),
+            cygne : require('../assets/images/cygne.png'),
+            dragon : require('../assets/images/dragon.png'),
+            moustique : require('../assets/images/moustique.png'),
+            pinguin : require('../assets/images/pinguin.png'),
             oiseau : require('../assets/images/oiseau.png'),
-            requin : require('../assets/images/requin.png')
+            poulet : require('../assets/images/poulet.png')
         }
 
     
         switch (item) {
-            case 'abeille':
-                return animaux.abeille
-            case 'araignee':
-                return animaux.araignee
-            case 'chat':
-                return animaux.chat
-            case 'faucon':
-                return animaux.faucon
-            case 'hiboux':
-                return animaux.hibou
-            case 'lapin':
-                return animaux.lapin
+            case 'cheval':
+                return animaux.cheval
+            case 'chien':
+                return animaux.chien
+            case 'cygne':
+                return animaux.cygne
+            case 'dragon':
+                return animaux.dragon
+            case 'moustique':
+                return animaux.moustique
+            case 'pinguin':
+                return animaux.pinguin
             case 'oiseau':
                 return animaux.oiseau
-            case 'requin':
-                return animaux.requin
+            case 'poulet':
+                return animaux.poulet
             default:
                 break;
         }
     }
 
-    // function handleMoveImage() {
-        
-    //     // Si user n'a pas encore selectionné une 1er image
-    //     if (!movesImage.sourceClick) {
-    //         // Mise à jour de la première image dans le context
-    //         let updatedValueFirst = {
-    //             ...movesImage,
-    //             sourceTypeImage : props.type,
-    //             sourceIdSquare : props.id,
-    //             sourceClick : true
-    //         }
+ 
+    useImperativeHandle(ref, () => ({
+        handleExchangeImage(newType, ordre) {
 
-    //         setMovesImage(updatedValueFirst)
+            if(ordre === 'first') {
+                console.log("composant square")
+                console.log(`le 1er clique (${typeImage}) prends la place du 2eme clique (${newType})`)
+                console.log('-----------------')
+            }
 
-    //         // console.log(movesImage)
+            
+
+            setRequireImage(getRequireImage(newType))
+            setType(newType)
+        }
+    }))
 
 
-    //     // Si User a déjà cliqué sur une 1er image
-    //     } else {
-
-    //         //On va vérifié que l'image cliquée, n'est pas égal à la première
-    //         if (movesImage.sourceIdSquare === props.id) {
-    //             Alert.alert(
-    //                 "Erreur",
-    //                 "Les deux images doivent être différentes",
-    //                 [
-    //                     {text: "OK", onPress: () => console.log("OK Pressed")},
-    //                 ],
-    //                 {cancelable: false}
-    //             );
-    //         } else {
-    //             // Mise à jour de la deuxieme image dans le context
-    //             let updatedValueSecond = {
-    //                 targetTypeImage : props.type,
-    //                 targetIdSquare : props.id,
-    //                 targetClick : true
-    //             }
-
-    //             setMovesImage(movesImage => ({
-    //                 ...movesImage,
-    //                 ...updatedValueSecond
-    //             }))
-
-    //             // setTargetSquare(
-    //             //     {
-    //             //         targetImage : movesImage.TypeImage,
-    //             //         targetId : movesImage.firstIdSquare
-    //             //     }
-    //             // )
-
-    //             // console.log(targetSquare)
-
-    //             // Si la deuxieme image est validée, on lance la fonction permettant de modifier les src des 2 images
-    //             // changeSquareImage()
-    //         }
-    //     }
-    // }
+    function PassInfoGridLayout() {
+        console.log(typeImage)
+        console.log(requireImage)
+        props.onPress(typeImage, ref)
+    }
 
     return (
-        <TouchableOpacity style={styles.border} onPress={handleMoveImage} >
-            <Image source={like_uri} imageId={props.id}/>
+        <TouchableOpacity style={styles.border} onPress={PassInfoGridLayout} >
+            <Image style={{width: 40}} source={requireImage} type={typeImage} ref={ref} id={props.id}/>
         </TouchableOpacity>
      );
-}
+})
 
 const styles = StyleSheet.create({
     border : {
-        width : 50,
-        height : 50,
+        width : 43,
+        height : 43,
         borderWidth: 1, // Largeur de la bordure
         borderColor: 'black', // Couleur de la bordure
     }

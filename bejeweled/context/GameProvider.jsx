@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import SquaresContext from "./GameContext";
+import GameContext from "./GameContext";
 
 
 const GameProvider = ({children}) => {
@@ -8,9 +8,9 @@ const GameProvider = ({children}) => {
     })
 
     return (
-        <SquaresContext.Provider value={{gameGrid, setgameGrid}}>
+        <GameContext.Provider value={{gameGrid, setgameGrid}}>
             {children}
-        </SquaresContext.Provider>
+        </GameContext.Provider>
     )
 
 }
