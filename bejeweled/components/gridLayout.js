@@ -10,6 +10,7 @@ function GridLayout() {
     var index = 0
     const [imagesInfo, setImagesInfo] = useState(null)
     const [adjacentSquares, setAdjacentSquares] = useState(null)
+    const [allSquares, setAllSquares] = useState([])
 
     const initialGridLayout = Array.from({ length : 8}, (_, rowIndex) => (
         <View style={styles.grid} key={rowIndex}>
@@ -17,7 +18,15 @@ function GridLayout() {
                 // On va créer une reférence pour chaque cellule et la mettre dans le tableau qui contient l'ensemble des refs
                 const squareRef = useRef(null)
                 gridRefs.current.push(squareRef)
-                return <Square randomNumber={Math.floor(Math.random() * 7)} key={colIndex} ref={squareRef} onPress={getInfoSquare} id={index++}/>
+                return <Square 
+                    randomNumber={Math.floor(Math.random() * 7)} 
+                    key={colIndex} 
+                    ref={squareRef} 
+                    onPress={getInfoSquare} 
+                    id={index++}
+                    col={colIndex}
+                    row={rowIndex}
+                />
             })}
         </View>
     ));
@@ -26,6 +35,7 @@ function GridLayout() {
     const [gridLayout, setGridLayout] = useState(initialGridLayout)
 
     useEffect(() => {
+
         if(imagesInfo !== null && 'first' in imagesInfo && 'seconde' in imagesInfo) {
 
             if (adjacentSquares.includes(imagesInfo.seconde.idImage)) {
@@ -47,14 +57,21 @@ function GridLayout() {
         
 
             setImagesInfo(null)
-            console.log(imagesInfo)
 
+            //On charge l'ensemble des squares avec les informations nécessaires
+            //- Son image
+            //- Sa référence
+            //- Son id
+            //- Sa colonne
+            //- Sa ligne
+            loadAllSquares();
 
-        //     //Verifier si succession image
+            //Verifier apres le load des sqares, la succession de colonne
+            searchRowImages()
 
-        //     //Si oui /// effacer image
+            //Si oui /// effacer image
 
-        //     // repeupler la grille
+            // repeupler la grille par la vertical
         }
     
     }, [imagesInfo])
@@ -85,6 +102,51 @@ function GridLayout() {
             }
         })
 
+    }
+
+
+    const loadAllSquares = () => {
+
+        let squaresData = []
+
+        gridRefs.current.forEach((square) => {
+            if (square.current) squaresData.push(square.current.getInfoSquare())
+        })
+
+        setAllSquares(squaresData)
+    } 
+
+    function searchRowImages() {
+
+        gridRefs.current.forEach((square) => { console.log(square.current.getInfoSquare())})
+
+        // boucler sur les col 0 à 7
+            // Pour chaque colonne on va récupérer les squares qui la composent
+                //exemple : pour la colonne 0 --- > 
+                                //On va récupérer toutes les square qui pour col : 0
+                                // Verifier la succession d'image
+                                // Si succession, on alimente une variable score
+                                // On alimente une variable des ref sur lequels on va delete
+                            // Sur la boucle suivante donc la colonne  1 --->
+                                //On va récupérer toutes les square qui pour col : 1
+                                // Verifier la succession d'image
+                                // .....
+
+        // boucler sur les row 0 à 7
+            // Pour chaque row on va récupérer les squares qui la composent
+                //exemple : pour la row 0 --- > 
+                                //On va récupérer toutes les square qui pour row : 0
+                                // Verifier la succession d'image
+                                // Si succession, on alimente une variable score
+                                // On alimente une variable des ref sur lequels on va delete
+                            // Sur la boucle suivante donc la colonne  1 --->
+                                //On va récupérer toutes les square qui pour col : 1
+                                // Verifier la succession d'image
+                                // .....
+
+
+        
+        
     }
     
     return (
