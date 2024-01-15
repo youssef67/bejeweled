@@ -55,9 +55,7 @@ const Square = forwardRef((props, ref) => {
                 console.log("composant square")
                 console.log(`le 1er clique (${typeImage}) prends la place du 2eme clique (${newType})`)
                 console.log('-----------------')
-            }
-
-            
+            }  
 
             setRequireImage(getRequireImage(newType))
             setType(newType)
@@ -68,7 +66,8 @@ const Square = forwardRef((props, ref) => {
     function PassInfoGridLayout() {
         console.log(typeImage)
         console.log(requireImage)
-        props.onPress(typeImage, ref)
+        console.log(`props id ${props.id}`)
+        props.onPress(typeImage, ref, props.id)
     }
 
     return (
