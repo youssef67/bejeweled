@@ -65,11 +65,6 @@ const Square = forwardRef((props, ref) => {
                 id : props.id, 
                 row : props.row, 
                 col : props.col}
-        },
-        getRef() {
-            return {
-                ref : ref
-            }
         }
     }))
 
