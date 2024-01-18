@@ -15,47 +15,55 @@ function GridLayout() {
     const [adjacentSquares, setAdjacentSquares] = useState(null)
     const [allSquares, setAllSquares] = useState([])
     const [gridLayout, setGridLayout] = useState(null)
-    const [isInitialRendered, setIsInitialrendered] = useState(false)
+    const [isInitialRendered, setIsInitialrendered] = useState(true)
     const [gridLayoutToRegenrate, setGridLayoutToRegenrate] = useState(false)
 
     //UseEffect appelé au démarrage pour l'initialisation du layout
     useEffect(() => {
+        console.log("use effect de rendu de la grid ")
+        console.log("Dasn le useEffect du rendu -- valeur la variable isInitialRendered " + isInitialRendered)
         // setGridLayout(initialGridLayout)
-        gridRefs.current = Array(64).fill(null).map(() => createRef());
-        // setIsrendered(true)
-        const initialGridLayout = Array.from({ length : 8}, (_, rowIndex) => (
-            <View style={styles.grid} key={rowIndex}>
-                {Array.from({ length : 8}, (_, colIndex) => {
-                    // On va créer une reférence pour chaque cellule et la mettre dans le tableau qui contient l'ensemble des refs
-                    //La ref va nous permette de manipuler uniquement la square concernée
-                    // if(gridRefs.current.length < 64) {
-                    //     const squareRef = useRef(null)
-                    //     gridRefs.current.push(squareRef)
-                    // }
-                    return <Square 
-                        randomNumber={Math.floor(Math.random() * 7)} 
-                        key={colIndex} 
-                        ref={gridRefs.current[index]} 
-                        onPress={getInfoSquare}
-                        //Création d'un index pour chaque composant, de 1 à 63 
-                        id={index++}
-                        //Création de l'index par colonne et par ligne
-                        col={colIndex}
-                        row={rowIndex}
-                    />
-                })}
-            </View>
-        ));
+        if (isInitialRendered) {
+            gridRefs.current = Array(64).fill(null).map(() => createRef());
+            // setIsrendered(true)
+            const initialGridLayout = Array.from({ length : 8}, (_, rowIndex) => (
+                <View style={styles.grid} key={rowIndex}>
+                    {Array.from({ length : 8}, (_, colIndex) => {
+                        // On va créer une reférence pour chaque cellule et la mettre dans le tableau qui contient l'ensemble des refs
+                        //La ref va nous permette de manipuler uniquement la square concernée
+                        // if(gridRefs.current.length < 64) {
+                        //     const squareRef = useRef(null)
+                        //     gridRefs.current.push(squareRef)
+                        // }
+                        return <Square 
+                            randomNumber={Math.floor(Math.random() * 7)} 
+                            key={colIndex} 
+                            ref={gridRefs.current[index]} 
+                            onPress={getInfoSquare}
+                            //Création d'un index pour chaque composant, de 1 à 63 
+                            id={index++}
+                            //Création de l'index par colonne et par ligne
+                            col={colIndex}
+                            row={rowIndex}
+                        />
+                    })}
+                </View>
+            ));
+    
+            setGridLayout(initialGridLayout);
+        }
+    }, [isInitialRendered])
 
-        setGridLayout(initialGridLayout);
-        setIsInitialrendered(true)
-    }, [gridLayoutToRegenrate, gridLayoutToRegenrate])
 
      
     //On effectue un re-render pour que les références des Square soient présents dans la variable gridRefs
     useEffect(() => {
+        console.log("use effect ou on appelle la fonction loadSquare")
+        console.log("isInitialRendered avant le loadAllSquare " + isInitialRendered)
         loadAllSquares()
     }, [gridLayout])
+
+
 
 
     useEffect(() => {
@@ -98,7 +106,8 @@ function GridLayout() {
 
     //A chaque changement de l'état de la variable allSquares, on lance la fonction searchRowSearch pour vérification
     useEffect(() => {
-
+        console.log("use effect ou on appelle la fonction searchRowImages")
+        console.log("isInitialRendered avant le searchRowImages " + isInitialRendered)
         //Si allSquare a des données, cela veut dire qu'on a fait un mouvement sur la grille
         // On lance la recherche d'images successives
         if (allSquares.length !== 0) searchRowImages()
@@ -136,7 +145,9 @@ function GridLayout() {
 
     //On va mettre en place un tableau qui va permettre de vérifier chaque colonne et chaque ligne du gridLayout de façon indépendante
     const loadAllSquares = () => {
-        //Nombre de col : 8 (index 0 à 7)
+        console.log("dans la fonction loadAllSquares")
+        console.log(gridRefs.current[0].current)
+        //NombrloadAllSquares de col : 8 (index 0 à 7)
         //Nombre de row : 8 (index 0 à 7)
         //Création de 2 tableaux
         //1er tableau sera pour l'ensemble des colonnes
@@ -185,136 +196,143 @@ function GridLayout() {
 
 
     function searchRowImages() {
+        console.log("dans la fonction searchRowImages")
         //Si lancement de la recherche lors du 1er rendu
         // Pas de score, uniquement un refresh si presence de succession d'images
-        if (isInitialRendered) {
-            let score = 0
-            let following = []
-            let squaresRefs = []
-            let addSquaresRef = false
+        let score = 0
+        let following = []
+        let squaresRefs = []
+        let addSquaresRef = false
 
-            //boucle sur les colonne 0 à 7
-            allSquares[0].forEach((col, k) => {
-                let sequence = 1
-                let prevSquareType = null
-                let prevSquareRef = null
-                // console.log('col <***********************************************************> ' + k)
-                col.forEach((value, key) => {
-                    // console.log('champs <--------------------------------------------------------> ' + key)
-                    if (value.type === prevSquareType) {
+        //boucle sur les colonne 0 à 7
+        allSquares[0].forEach((col, k) => {
+            let sequence = 1
+            let prevSquareType = null
+            let prevSquareRef = null
+            // console.log('col <***********************************************************> ' + k)
+            col.forEach((value, key) => {
+                // console.log('champs <--------------------------------------------------------> ' + key)
+                if (value.type === prevSquareType) {
 
-                        sequence++
-                        addSquaresRef = true
+                    sequence++
+                    addSquaresRef = true
 
-                        if (prevSquareType !== null) {
-                            if(sequence === 2) squaresRefs.push(value, prevSquareRef)   
-                            else squaresRefs.push(value)
-                        } 
-                        // console.log('value.type ' + value.type)
-                        // console.log('prevSquare ' + prevSquare)
-                        // console.log('sequence before ' + sequence)
-                        prevSquareType = value.type
-                        prevSquareRef = value
-                        
-                        //Si on est sur la dernier case et qu'on est en présence d'un enchainement
-                        //ON ne pourra pas acceder au push du ELSE, on gere le push ici 
-                        if(key === 7 && sequence >= 3) {following.push(sequence)}
-                        if(key === 7 && sequence === 2) {
-                            for (let i = 0; i < sequence; i++) { squaresRefs.pop() }
-                        }
-                        // console.log('after before ' + sequence)
-                    } else {
-                        // console.log("else - sequence dans le else " + sequence)
-                        // console.log('else - value.type ' + value.type)
-                        // console.log('else - prevSquare ' + prevSquare)
-                        if (sequence >= 3) following.push(sequence)
-                        
-                        if(addSquaresRef && sequence === 2) {
-                            for (let i = 0; i < sequence; i++) {
-                                squaresRefs.pop()   
-                            }
-                        }
-
-                        prevSquareType = value.type
-                        prevSquareRef = value
-                        sequence = 1
+                    if (prevSquareType !== null) {
+                        if(sequence === 2) squaresRefs.push(value, prevSquareRef)   
+                        else squaresRefs.push(value)
+                    } 
+                    // console.log('value.type ' + value.type)
+                    // console.log('prevSquare ' + prevSquare)
+                    // console.log('sequence before ' + sequence)
+                    prevSquareType = value.type
+                    prevSquareRef = value
+                    
+                    //Si on est sur la dernier case et qu'on est en présence d'un enchainement
+                    //ON ne pourra pas acceder au push du ELSE, on gere le push ici 
+                    if(key === 7 && sequence >= 3) {following.push(sequence)}
+                    if(key === 7 && sequence === 2) {
+                        for (let i = 0; i < sequence; i++) { squaresRefs.pop() }
                     }
-                })                
-            })
-
-            //boucle sur les ligne 0 à 7
-            allSquares[1].forEach((row, k) => {
-                let sequence = 1
-                let prevSquareType = null
-                let prevSquareRef = null
-                // console.log('ligne <***********************************************************> ' + k)
-                row.forEach((value, key) => {
-                    // console.log('champs <--------------------------------------------------------> ' + key)
-                    if (value.type === prevSquareType) {
-                        sequence++
-                        addSquaresRef = true
-
-                        if (prevSquareType !== null) {
-                            if(sequence === 2) squaresRefs.push(value, prevSquareRef)   
-                            else squaresRefs.push(value)
-                        } 
-
-                        prevSquareType = value.type
-                        prevSquareRef = value
-                        
-                        //Si on est sur la dernier case et qu'on est en présence d'un enchainement
-                        //ON ne pourra pas acceder au push du ELSE, on gere le push ici 
-                        if(key === 7 && sequence >= 3) {following.push(sequence)}
-                        if(key === 7 && sequence === 2) {
-                            for (let i = 0; i < sequence; i++) { squaresRefs.pop() }
+                    // console.log('after before ' + sequence)
+                } else {
+                    // console.log("else - sequence dans le else " + sequence)
+                    // console.log('else - value.type ' + value.type)
+                    // console.log('else - prevSquare ' + prevSquare)
+                    if (sequence >= 3) following.push(sequence)
+                    
+                    if(addSquaresRef && sequence === 2) {
+                        for (let i = 0; i < sequence; i++) {
+                            squaresRefs.pop()   
                         }
-                    } else {
-                        if (sequence >= 3) following.push(sequence)
-                        
-                        if(addSquaresRef && sequence === 2) {
-                            for (let i = 0; i < sequence; i++) {
-                                squaresRefs.pop()   
-                            }
-                        }
-
-                        prevSquareType = value.type
-                        prevSquareRef = value
-                        sequence = 1
                     }
-                })
-            })
 
-            following.forEach(follow => {
-                switch (follow) {
-                    case 3:
-                        score += 50
-                        break;
-                    case 4:
-                        score += 150
-                        break;
-                    case 5:
-                        score += 500
-                        break;
-                    case 7:
-                        score += 200
-                        break;
-                    case 8:
-                        score += 550
-                        break;
-                    default:
-                        break;
+                    prevSquareType = value.type
+                    prevSquareRef = value
+                    sequence = 1
                 }
-            }) 
+            })                
+        })
 
-            console.log("score "  + score)
-            console.log("tableau square ref " + squaresRefs.length)
+        //boucle sur les ligne 0 à 7
+        allSquares[1].forEach((row, k) => {
+            let sequence = 1
+            let prevSquareType = null
+            let prevSquareRef = null
+            // console.log('ligne <***********************************************************> ' + k)
+            row.forEach((value, key) => {
+                // console.log('champs <--------------------------------------------------------> ' + key)
+                if (value.type === prevSquareType) {
+                    sequence++
+                    addSquaresRef = true
 
-            if(squaresRefs.length > 0) {
-                squaresRefs.forEach(square => {
-                    square.ref.current.disableActiveSquare()
-                })
+                    if (prevSquareType !== null) {
+                        if(sequence === 2) squaresRefs.push(value, prevSquareRef)   
+                        else squaresRefs.push(value)
+                    } 
+
+                    prevSquareType = value.type
+                    prevSquareRef = value
+                    
+                    //Si on est sur la dernier case et qu'on est en présence d'un enchainement
+                    //ON ne pourra pas acceder au push du ELSE, on gere le push ici 
+                    if(key === 7 && sequence >= 3) {following.push(sequence)}
+                    if(key === 7 && sequence === 2) {
+                        for (let i = 0; i < sequence; i++) { squaresRefs.pop() }
+                    }
+                } else {
+                    if (sequence >= 3) following.push(sequence)
+                    
+                    if(addSquaresRef && sequence === 2) {
+                        for (let i = 0; i < sequence; i++) {
+                            squaresRefs.pop()   
+                        }
+                    }
+
+                    prevSquareType = value.type
+                    prevSquareRef = value
+                    sequence = 1
+                }
+            })
+        })
+
+        following.forEach(follow => {
+            switch (follow) {
+                case 3:
+                    score += 50
+                    break;
+                case 4:
+                    score += 150
+                    break;
+                case 5:
+                    score += 500
+                    break;
+                case 7:
+                    score += 200
+                    break;
+                case 8:
+                    score += 550
+                    break;
+                default:
+                    break;
             }
+        }) 
+
+        console.log("score "  + score)
+        console.log("tableau square ref " + squaresRefs.length)
+
+        if(squaresRefs.length > 0) {
+            squaresRefs.forEach(square => {
+                square.ref.current.disableActiveSquare()
+            })
         }
+
+
+        //Si 1er rendu et le score
+        if (score > 0 && isInitialRendered) {
+            console.log("if ou je setInitialRendered a TRUE")
+            setIsInitialrendered(true)
+        } 
+        
 
         // dans le cas du 1er rendu
             //Reste a faire, recharger la grille ou modifier les case qui génére des points
@@ -323,7 +341,7 @@ function GridLayout() {
         //Lors d'un mouvement
             //Si score > 0, effacé les images
             // descendre les images du dessus
-            // générer de nouvelles images pour les cases vides
+            // générer de nouvelles images pour les cases vides      
     }
     
     return (
