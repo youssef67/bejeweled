@@ -1,5 +1,5 @@
 import {StyleSheet, TouchableOpacity, Image } from 'react-native';
-import  React, { useContext, useState, useEffect, forwardRef, useImperativeHandle } from 'react';
+import  React, {useState, forwardRef, useImperativeHandle } from 'react';
 // import SquaresContext from '../context/GameContext';
 
 const images = ["cheval", "poulet", "chien", "oiseau", "pinguin", "cygne", "dragon", "moustique"]
@@ -9,9 +9,10 @@ const Square = forwardRef((props, ref) => {
     
     const [requireImage, setRequireImage] = useState(getRequireImage(images[props.randomNumber]))
     const [typeImage, setType] = useState(images[props.randomNumber])
-    const [isActiveSquare, setIsActiveSquare] = useState(false)
+    const [isActiveSquare, setToogleActiveSquare] = useState(false)
+    // Variable qui permet de définir ou non la présence d'un style sur une square
+    const activeSquare = isActiveSquare ? styles.activeBackground : null
 
-   
     function getRequireImage(item) {
         
         const animaux = {
@@ -50,14 +51,17 @@ const Square = forwardRef((props, ref) => {
 
  
     useImperativeHandle(ref, () => ({
+        //fonction permettant de définir un nouveau type et une nouvelle image à une square
         handleExchangeImage(newType) {
             setRequireImage(getRequireImage(newType))
             setType(newType)
-            setIsActiveSquare(!isActiveSquare)
+            setToogleActiveSquare(!isActiveSquare)
         },
-        disableActiveSquare() {
-            setIsActiveSquare(!isActiveSquare)
+        //fonction permettant d'activer ou desactiver le background
+        toogleActiveSquare() {
+            setToogleActiveSquare(prev => prev === false ? true : false)
         },
+        //fonction permettant de récupérer l'ensemble des données d'une square
         getInfoSquare() {
             return {
                 type : typeImage,
@@ -72,22 +76,19 @@ const Square = forwardRef((props, ref) => {
         }
     }))
 
-    const activeSquare = isActiveSquare ? styles.activeBackground : null
-
+    
     function PassInfoGridLayout() {
         props.onPress(typeImage, ref, props.id)
-
-        setIsActiveSquare(!isActiveSquare)
+        setToogleActiveSquare(!isActiveSquare)
     }
-
-
-
+    
     return (
         <TouchableOpacity style={[styles.border, activeSquare]} onPress={PassInfoGridLayout} >
             <Image style={{width: 40}} source={requireImage} type={typeImage} ref={ref} id={props.id}/>
         </TouchableOpacity>
      );
 })
+
 
 const styles = StyleSheet.create({
     border : {

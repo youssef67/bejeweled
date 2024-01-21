@@ -1,4 +1,4 @@
-import { StyleSheet, View, Alert } from 'react-native';
+import { StyleSheet, View, Alert, Text } from 'react-native';
 // import SquaresContext from '../context/SquaresContext';
 import Square from './Square';
 import  React, {useEffect, useState, useRef, createRef} from 'react';
@@ -23,17 +23,16 @@ function GridLayout() {
 
 
     const [score, setScore] = useState(0);
-    // const [newScore, setNewScore] = useState(0);
-    // const [numberRender, setNumberRender] = useState(0)
+
+    const [tries, setTries] = useState(5)
+    const [wrongMove, setWrongMove] = useState(false)
+
 
 
     //***************** USE EFFETC  **************************/
 
     //UseEffect appelé au démarrage pour l'initialisation du layout
-    useEffect(() => {
-            console.log("use effect de rendu de la grid ")
-            console.log("renderCount " + renderCount)
-          
+    useEffect(() => {          
             //A chaque rendu, on s'assure que le score est bien de 0 
             // setScoreFirstRender(0)
            
@@ -69,7 +68,7 @@ function GridLayout() {
         if(imagesInfo !== null && 'first' in imagesInfo && 'seconde' in imagesInfo) {
 
             //On vérifie que la 2eme case et adjacente à la 1er
-            if (adjacentSquares.includes(imagesInfo.seconde.idImage)) {
+            if (adjacentSquares.includes(imagesInfo.seconde.idImage) && imagesInfo.first.idImage !== imagesInfo.seconde.idImage) {
 
                 //On met a jour l'image de la case et UNIQUEMENT l'image
                 imagesInfo.first.squareRef.current.handleExchangeImage(imagesInfo.seconde.type);
@@ -77,6 +76,9 @@ function GridLayout() {
 
                 //On construit le tableau nous permettant de vérifier la succession d'image
                 loadAllSquares()
+
+                // Après avoir effectué le changement d'images, on remet à zéro, la variable imagesInfo
+                setImagesInfo(null)  
             //Si non, on le notifie à l'utilisateur
             } else {
                 Alert.alert(
@@ -86,29 +88,56 @@ function GridLayout() {
                         {text: "OK", onPress: () => console.log("OK Pressed")},
                     ],
                     {cancelable: false}
-                );
-                
-                // On desactive le CSS du background
-                imagesInfo.first.squareRef.current.disableActiveSquare()
-                imagesInfo.seconde.squareRef.current.disableActiveSquare()
-            }
-        
-            // Après avoir effectué le changement d'images, on remet à zéro, la variable imagesInfo
-            setImagesInfo(null)       
+                );            
+            
+                // On indique au programme que le mouvement est incorrect
+                setWrongMove(true)
+            }           
         }
     }, [imagesInfo])
 
 
+    // UseEffect qui detecte un changment d'état de la variable WrongMove
+    useEffect(() => {
+
+        if(wrongMove) {
+            // On désactive le css présent sur les 2 images
+            imagesInfo.first.squareRef.current.toogleActiveSquare()
+            imagesInfo.seconde.squareRef.current.toogleActiveSquare()
+
+            // Mauvais déplacement, on redefini la variabe qui récupère les 2 images à false
+            // On passe à false la variable wrongMove
+            setImagesInfo(null)
+            setWrongMove(false)
+            
+            setTries(prev => prev - 1)
+        }
+    }, [wrongMove])
+
+
+    // useEffect(() => {
+    //     console.log(tries)
+    //     if (tries === 0) {
+    //         Alert.alert(
+    //             "Désolé",
+    //             "Vous avez perdu",
+    //             [
+    //                 {text: "OK", onPress: () => console.log("OK Pressed")},
+    //             ],
+    //             {cancelable: false}
+    //         );         
+    //     }
+    // }, [tries])
+
+
     //On effectue un re-render pour que les références des Square soient présents dans la variable gridRefs
     useEffect(() => {
-        console.log("use effect ou on appelle la fonction loadSquare")
         loadAllSquares()
     }, [gridLayout])
 
 
     //A chaque changement de l'état de la variable allSquares, on lance la fonction searchRowSearch pour vérification
     useEffect(() => {
-        console.log("use effect ou on appelle la fonction searchRowImages")
         //Si allSquare a des données, cela veut dire qu'on a fait un mouvement sur la grille
         // On lance la recherche d'images successives
         if (allSquares.length !== 0) searchRowImages()
@@ -149,7 +178,7 @@ function GridLayout() {
                 setAdjacentSquares(objectAdjacentSquare)
 
                 //On conserve la référence de la 1er case cliquée
-                return {first : { type : type, squareRef : squareRef }}
+                return {first : { type : type, squareRef : squareRef, idImage : idImage }}
             } else {
 
                  //On conserve la référence de la 2eme case cliquée
@@ -161,7 +190,6 @@ function GridLayout() {
 
     //On va mettre en place un tableau qui va permettre de vérifier chaque colonne et chaque ligne du gridLayout de façon indépendante
     const loadAllSquares = () => {
-        console.log("dans la fonction loadAllSquares")
         //NombrloadAllSquares de col : 8 (index 0 à 7)
         //Nombre de row : 8 (index 0 à 7)
         //Création de 2 tableaux
@@ -176,7 +204,6 @@ function GridLayout() {
             // Chaque Square à un col et un index en props
             gridRefs.current.forEach((square) => {
     
-                // console.log("gridrefs " + gridRefs.current.length)
                 //On conserve le square dans une variable
                 let squareTemp = square.current.getInfoSquare()
     
@@ -326,8 +353,8 @@ function GridLayout() {
         }) 
         
        
-        console.log("scoreTemp " + tempScore)
-        console.log("score " + score)
+        // console.log("scoreTemp " + tempScore)
+        // console.log("score " + score)
 
         //Tant que la variable isFirstRenderWithZeroScore n'est pas true, on verifie le 1er score lors de la genration de la grille
         if(!isFirstRenderWithZeroScore) {
@@ -341,7 +368,7 @@ function GridLayout() {
             //Permet de boucler sur les Ref est d'appliquer un CSS sur chaque square
             if(squaresRefs.length > 0) {
                 squaresRefs.forEach(square => {
-                    square.ref.current.disableActiveSquare()
+                    square.ref.current.toogleActiveSquare()
                 })
             }
         }
@@ -351,7 +378,13 @@ function GridLayout() {
     return (
         // A chaque mise a jour de la variable renderCount // On va re render le composant GridLayout
         <View style={styles.center} key={renderCount}>
-            {gridLayout}
+            <Text >{tries}</Text>
+
+            {tries === 0 ? (
+                <Text>Désolé, vous avez perdu</Text>
+            ) : (
+                gridLayout
+            )}
         </View>
     )  
 }
