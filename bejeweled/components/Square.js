@@ -65,6 +65,10 @@ const Square = forwardRef((props, ref) => {
                 id : props.id, 
                 row : props.row, 
                 col : props.col}
+        },
+        setNewRequireImage(newType) {
+            setRequireImage(getRequireImage(newType))
+            setType(newType)
         }
     }))
 

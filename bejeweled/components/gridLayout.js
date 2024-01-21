@@ -15,15 +15,28 @@ function GridLayout() {
     const [adjacentSquares, setAdjacentSquares] = useState(null)
     const [allSquares, setAllSquares] = useState([])
     const [gridLayout, setGridLayout] = useState(null)
-    const [isInitialRendered, setIsInitialrendered] = useState(true)
-    const [gridLayoutToRegenrate, setGridLayoutToRegenrate] = useState(false)
+
+    // UseState utiles pour la 1er génération de grille
+    const [isFirstRenderWithZeroScore, setIsFirstRenderWithZeroScore] = useState(false);
+    const [scoreFirstRender, setScoreFirstRender] = useState(0);
+    const [renderCount, setRenderCount] = useState(0);
+
+
+    const [score, setScore] = useState(0);
+    // const [newScore, setNewScore] = useState(0);
+    // const [numberRender, setNumberRender] = useState(0)
+
+
+    //***************** USE EFFETC  **************************/
 
     //UseEffect appelé au démarrage pour l'initialisation du layout
     useEffect(() => {
-        console.log("use effect de rendu de la grid ")
-        console.log("Dasn le useEffect du rendu -- valeur la variable isInitialRendered " + isInitialRendered)
-        // setGridLayout(initialGridLayout)
-        if (isInitialRendered) {
+            console.log("use effect de rendu de la grid ")
+            console.log("renderCount " + renderCount)
+          
+            //A chaque rendu, on s'assure que le score est bien de 0 
+            // setScoreFirstRender(0)
+           
             gridRefs.current = Array(64).fill(null).map(() => createRef());
             // setIsrendered(true)
             const initialGridLayout = Array.from({ length : 8}, (_, rowIndex) => (
@@ -31,10 +44,6 @@ function GridLayout() {
                     {Array.from({ length : 8}, (_, colIndex) => {
                         // On va créer une reférence pour chaque cellule et la mettre dans le tableau qui contient l'ensemble des refs
                         //La ref va nous permette de manipuler uniquement la square concernée
-                        // if(gridRefs.current.length < 64) {
-                        //     const squareRef = useRef(null)
-                        //     gridRefs.current.push(squareRef)
-                        // }
                         return <Square 
                             randomNumber={Math.floor(Math.random() * 7)} 
                             key={colIndex} 
@@ -51,23 +60,11 @@ function GridLayout() {
             ));
     
             setGridLayout(initialGridLayout);
-        }
-    }, [isInitialRendered])
+    }, [renderCount])
 
 
-     
-    //On effectue un re-render pour que les références des Square soient présents dans la variable gridRefs
+    // Ce useEffect est appelé lors de chaque click sur une image
     useEffect(() => {
-        console.log("use effect ou on appelle la fonction loadSquare")
-        console.log("isInitialRendered avant le loadAllSquare " + isInitialRendered)
-        loadAllSquares()
-    }, [gridLayout])
-
-
-
-
-    useEffect(() => {
-
         //A l'issue du deuxième click, on va procéder au changement d'images
         if(imagesInfo !== null && 'first' in imagesInfo && 'seconde' in imagesInfo) {
 
@@ -96,24 +93,43 @@ function GridLayout() {
                 imagesInfo.seconde.squareRef.current.disableActiveSquare()
             }
         
-
             // Après avoir effectué le changement d'images, on remet à zéro, la variable imagesInfo
             setImagesInfo(null)       
         }
-    
     }, [imagesInfo])
+
+
+    //On effectue un re-render pour que les références des Square soient présents dans la variable gridRefs
+    useEffect(() => {
+        console.log("use effect ou on appelle la fonction loadSquare")
+        loadAllSquares()
+    }, [gridLayout])
 
 
     //A chaque changement de l'état de la variable allSquares, on lance la fonction searchRowSearch pour vérification
     useEffect(() => {
         console.log("use effect ou on appelle la fonction searchRowImages")
-        console.log("isInitialRendered avant le searchRowImages " + isInitialRendered)
         //Si allSquare a des données, cela veut dire qu'on a fait un mouvement sur la grille
         // On lance la recherche d'images successives
         if (allSquares.length !== 0) searchRowImages()
 
     // On indique allSquare ref pour déclenchcer ce hook à la modification de ce state
-    }, [allSquares]) 
+    }, [allSquares])
+    
+    
+    // Ce UseEffect est destiné uniquement au score du 1er rendu
+    // IL est appelé, dès que la variable scoreFirstRender est modifié par conséquent uniquement au lancement de la gridLayout
+    useEffect(() => {       
+        if(scoreFirstRender > 0) {
+            setRenderCount(prevCount => prevCount + 1);
+        }
+    }, [scoreFirstRender]);
+
+
+    // Ce use effect est destiné à mettre a jour la variable IsFirstRenderWithZeroScore rapidement
+    useEffect(() => {
+        setScoreFirstRender(0)
+    }, [isFirstRenderWithZeroScore])
 
 
     function getInfoSquare(type, squareRef, idImage) {
@@ -146,7 +162,6 @@ function GridLayout() {
     //On va mettre en place un tableau qui va permettre de vérifier chaque colonne et chaque ligne du gridLayout de façon indépendante
     const loadAllSquares = () => {
         console.log("dans la fonction loadAllSquares")
-        console.log(gridRefs.current[0].current)
         //NombrloadAllSquares de col : 8 (index 0 à 7)
         //Nombre de row : 8 (index 0 à 7)
         //Création de 2 tableaux
@@ -194,12 +209,10 @@ function GridLayout() {
         }
     }
 
-
+    //Function permettant de rechercher les combinaisons dans la grille
     function searchRowImages() {
-        console.log("dans la fonction searchRowImages")
-        //Si lancement de la recherche lors du 1er rendu
-        // Pas de score, uniquement un refresh si presence de succession d'images
-        let score = 0
+
+        let tempScore = 0
         let following = []
         let squaresRefs = []
         let addSquaresRef = false
@@ -209,9 +222,7 @@ function GridLayout() {
             let sequence = 1
             let prevSquareType = null
             let prevSquareRef = null
-            // console.log('col <***********************************************************> ' + k)
             col.forEach((value, key) => {
-                // console.log('champs <--------------------------------------------------------> ' + key)
                 if (value.type === prevSquareType) {
 
                     sequence++
@@ -221,9 +232,6 @@ function GridLayout() {
                         if(sequence === 2) squaresRefs.push(value, prevSquareRef)   
                         else squaresRefs.push(value)
                     } 
-                    // console.log('value.type ' + value.type)
-                    // console.log('prevSquare ' + prevSquare)
-                    // console.log('sequence before ' + sequence)
                     prevSquareType = value.type
                     prevSquareRef = value
                     
@@ -233,11 +241,7 @@ function GridLayout() {
                     if(key === 7 && sequence === 2) {
                         for (let i = 0; i < sequence; i++) { squaresRefs.pop() }
                     }
-                    // console.log('after before ' + sequence)
                 } else {
-                    // console.log("else - sequence dans le else " + sequence)
-                    // console.log('else - value.type ' + value.type)
-                    // console.log('else - prevSquare ' + prevSquare)
                     if (sequence >= 3) following.push(sequence)
                     
                     if(addSquaresRef && sequence === 2) {
@@ -258,9 +262,8 @@ function GridLayout() {
             let sequence = 1
             let prevSquareType = null
             let prevSquareRef = null
-            // console.log('ligne <***********************************************************> ' + k)
+
             row.forEach((value, key) => {
-                // console.log('champs <--------------------------------------------------------> ' + key)
                 if (value.type === prevSquareType) {
                     sequence++
                     addSquaresRef = true
@@ -298,54 +301,56 @@ function GridLayout() {
         following.forEach(follow => {
             switch (follow) {
                 case 3:
-                    score += 50
+                    // Dans le cas ou on une combinaison de 3 images sur une ligne ou colonne
+                    tempScore += 50
                     break;
                 case 4:
-                    score += 150
+                    // Dans le cas ou on une combinaison de 4 images sur une ligne ou colonne
+                    tempScore += 150
                     break;
                 case 5:
-                    score += 500
+                    // Dans le cas ou on une combinaison de 5 images sur une ligne ou colonne
+                    tempScore += 500
                     break;
                 case 7:
-                    score += 200
+                    // Dans le cas ou on une combinaison de 4 images et de 3 images sur une ligne ou colonne
+                    tempScore += 200
                     break;
                 case 8:
-                    score += 550
+                    // Dans le cas ou on une combinaison de 5 images et 3 images sur une ligne ou colonne
+                    tempScore += 550
                     break;
                 default:
                     break;
             }
         }) 
-
-        console.log("score "  + score)
-        console.log("tableau square ref " + squaresRefs.length)
-
-        if(squaresRefs.length > 0) {
-            squaresRefs.forEach(square => {
-                square.ref.current.disableActiveSquare()
-            })
-        }
-
-
-        //Si 1er rendu et le score
-        if (score > 0 && isInitialRendered) {
-            console.log("if ou je setInitialRendered a TRUE")
-            setIsInitialrendered(true)
-        } 
         
-
-        // dans le cas du 1er rendu
-            //Reste a faire, recharger la grille ou modifier les case qui génére des points
-            //Répéter l'operation tant que score > 0
        
-        //Lors d'un mouvement
-            //Si score > 0, effacé les images
-            // descendre les images du dessus
-            // générer de nouvelles images pour les cases vides      
+        console.log("scoreTemp " + tempScore)
+        console.log("score " + score)
+
+        //Tant que la variable isFirstRenderWithZeroScore n'est pas true, on verifie le 1er score lors de la genration de la grille
+        if(!isFirstRenderWithZeroScore) {
+            // Si le score est supérieur a 0, on va demander de regenerer la grille
+            if(tempScore > 0) setScoreFirstRender(preScore => preScore + tempScore)
+            //Si le score est egal a 0, on va dire que la 1er génération a zero s'est effectuée
+            // Le set a true de la variable IsFirstRenderWithZeroScore
+            // Cela va permttre sur les prochains mouvements en cas de combinaison de pas rentré dans le cas ou on regénére la grille
+            if(tempScore === 0) setIsFirstRenderWithZeroScore(true)
+        } else {
+            //Permet de boucler sur les Ref est d'appliquer un CSS sur chaque square
+            if(squaresRefs.length > 0) {
+                squaresRefs.forEach(square => {
+                    square.ref.current.disableActiveSquare()
+                })
+            }
+        }
     }
+
     
     return (
-        <View style={styles.center}>
+        // A chaque mise a jour de la variable renderCount // On va re render le composant GridLayout
+        <View style={styles.center} key={renderCount}>
             {gridLayout}
         </View>
     )  
