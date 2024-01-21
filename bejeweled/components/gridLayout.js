@@ -378,7 +378,7 @@ function GridLayout() {
     return (
         // A chaque mise a jour de la variable renderCount // On va re render le composant GridLayout
         <View style={styles.center} key={renderCount}>
-            <Text >{tries}</Text>
+            <Text style={{marginLeft : 100, marginBottom : 15}}>Nombre d'essais : {tries}</Text>
 
             {tries === 0 ? (
                 <Text>Désolé, vous avez perdu</Text>
