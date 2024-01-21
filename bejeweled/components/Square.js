@@ -57,6 +57,18 @@ const Square = forwardRef((props, ref) => {
         },
         disableActiveSquare() {
             setIsActiveSquare(!isActiveSquare)
+        },
+        getInfoSquare() {
+            return {
+                type : typeImage,
+                ref : ref,
+                id : props.id, 
+                row : props.row, 
+                col : props.col}
+        },
+        setNewRequireImage(newType) {
+            setRequireImage(getRequireImage(newType))
+            setType(newType)
         }
     }))
 
