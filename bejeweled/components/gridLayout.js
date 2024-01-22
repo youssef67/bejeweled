@@ -21,8 +21,13 @@ function GridLayout() {
     const [scoreFirstRender, setScoreFirstRender] = useState(0);
     const [renderCount, setRenderCount] = useState(0);
 
+    //
+    const [lastMove, setLastMove] = useState(null);
+ 
+
 
     const [score, setScore] = useState(0);
+    const [combinaisonScoreRef, setCombinaisonScoreRef] = useState()
 
     const [tries, setTries] = useState(5)
     const [wrongMove, setWrongMove] = useState(false)
@@ -76,6 +81,9 @@ function GridLayout() {
 
                 //On construit le tableau nous permettant de vérifier la succession d'image
                 loadAllSquares()
+
+                //
+                setLastMove(imagesInfo)
 
                 // Après avoir effectué le changement d'images, on remet à zéro, la variable imagesInfo
                 setImagesInfo(null)  
@@ -159,6 +167,36 @@ function GridLayout() {
     useEffect(() => {
         setScoreFirstRender(0)
     }, [isFirstRenderWithZeroScore])
+
+
+    useEffect(() =>  {
+        console.log("useEffect score")
+        console.log("score - " + score)
+
+        let columnToUpdate = []
+
+
+        if (combinaisonScoreRef !== undefined) {
+            combinaisonScoreRef.forEach(square => {
+
+                if(!columnToUpdate.includes(square.col))
+                    columnToUpdate.push(square.col)
+
+                console.log("square colonne " + square.col)
+                console.log("square ligne " + square.row)
+            })
+        }
+
+        console.log("columnToUpdate : " + columnToUpdate)
+
+        if (allSquares.length > 0) {
+
+            columnToUpdate.forEach(col => {
+                
+            })
+            console.log("allSqaures colonne " + allSquares[0][0])
+        }
+    }, [score])
 
 
     function getInfoSquare(type, squareRef, idImage) {
@@ -245,38 +283,51 @@ function GridLayout() {
         let addSquaresRef = false
 
         //boucle sur les colonne 0 à 7
-        allSquares[0].forEach((col, k) => {
+        allSquares[0].forEach((col, colIndex) => {
             let sequence = 1
             let prevSquareType = null
             let prevSquareRef = null
-            col.forEach((value, key) => {
+            col.forEach((value, rowIndex) => {
+                //Si la case actuelle est égal à la case précédente
                 if (value.type === prevSquareType) {
-
                     sequence++
                     addSquaresRef = true
 
+                    //Au cas ou on est en début de combinaison
+                    // On push les deux premieres références dans le tableau
                     if (prevSquareType !== null) {
-                        if(sequence === 2) squaresRefs.push(value, prevSquareRef)   
+                        if(sequence === 2) squaresRefs.push(prevSquareRef, value)   
                         else squaresRefs.push(value)
-                    } 
+                    }
+
+                    //On garde le type et la référence de l'image actuelle pour le contrôle suivant
                     prevSquareType = value.type
                     prevSquareRef = value
                     
+                    // *** GESTION EN FIN DE COLONNE *** //
                     //Si on est sur la dernier case et qu'on est en présence d'un enchainement
-                    //ON ne pourra pas acceder au push du ELSE, on gere le push ici 
-                    if(key === 7 && sequence >= 3) {following.push(sequence)}
-                    if(key === 7 && sequence === 2) {
+                    //On ne pourra pas acceder au push du ELSE, on gere le push ici 
+                    if(rowIndex === 7 && sequence >= 3) {following.push(sequence)}
+                    //Vu que l'on ajoute les deux éléments a partir d'une séquence de 2
+                    //Si on est à la fin de la ligne donc indice 7, on va supprimer les deux dernières entrées du tableau
+                    if(rowIndex === 7 && sequence === 2) {
                         for (let i = 0; i < sequence; i++) { squaresRefs.pop() }
                     }
                 } else {
+                    // Si on une combinaison supérieure à 3
+                    // On va garder un tableau avec l'historique des différentes combinaisons
                     if (sequence >= 3) following.push(sequence)
                     
+                    // Si on a une combinaison de 2
+                    // On efface les 2 dernières références sauvegardées
                     if(addSquaresRef && sequence === 2) {
                         for (let i = 0; i < sequence; i++) {
                             squaresRefs.pop()   
                         }
                     }
 
+                    // On garde le type et la référence de l'image actuelle pour le contrôle suivant
+                    // On remet à jour la sequence
                     prevSquareType = value.type
                     prevSquareRef = value
                     sequence = 1
@@ -285,39 +336,58 @@ function GridLayout() {
         })
 
         //boucle sur les ligne 0 à 7
-        allSquares[1].forEach((row, k) => {
+        allSquares[1].forEach((row, rowIndex) => {
             let sequence = 1
             let prevSquareType = null
             let prevSquareRef = null
 
-            row.forEach((value, key) => {
+            row.forEach((value, colIndex) => {
+                //Si la case actuelle est égal à la case précédente
                 if (value.type === prevSquareType) {
                     sequence++
                     addSquaresRef = true
 
                     if (prevSquareType !== null) {
-                        if(sequence === 2) squaresRefs.push(value, prevSquareRef)   
+                        //Au cas ou on est en début de combinaison
+                        // On push les deux premieres références dans le tableau
+                        if(sequence === 2) squaresRefs.push(prevSquareRef, value)
+                        //Sinon combinaison supérieur à 3, on push 1 seule image     
                         else squaresRefs.push(value)
                     } 
 
+                    //On garde le type et la référence de l'image actuelle pour le contrôle suivant
                     prevSquareType = value.type
                     prevSquareRef = value
-                    
+
+                    // *** GESTION EN FIN DE LIGNE *** //
                     //Si on est sur la dernier case et qu'on est en présence d'un enchainement
-                    //ON ne pourra pas acceder au push du ELSE, on gere le push ici 
-                    if(key === 7 && sequence >= 3) {following.push(sequence)}
-                    if(key === 7 && sequence === 2) {
-                        for (let i = 0; i < sequence; i++) { squaresRefs.pop() }
+                    //On ne pourra pas acceder au push du ELSE, on gere le push ici 
+                    if(colIndex === 7 && sequence >= 3) { 
+                        following.push(sequence) 
                     }
+                    //Vu que l'on ajoute les deux éléments a partir d'une séquence de 2
+                    //Si on est à la fin de la ligne donc indice 7, on va supprimer les deux dernières entrées du tableau
+                    if(colIndex === 7 && sequence === 2) {
+                        for (let i = 0; i < sequence; i++) { 
+                            squaresRefs.pop() 
+                        }
+                    }
+                //Si la case actuelle est différente de la case précédente
                 } else {
+                    // Si on une combinaison supérieure à 3
+                    // On va garder un tableau avec l'historique des différentes combinaisons
                     if (sequence >= 3) following.push(sequence)
                     
+                    // Si on a une combinaison de 2
+                    // On efface les 2 dernières références sauvegardées
                     if(addSquaresRef && sequence === 2) {
                         for (let i = 0; i < sequence; i++) {
                             squaresRefs.pop()   
                         }
                     }
 
+                    // On garde le type et la référence de l'image actuelle pour le contrôle suivant
+                    // On remet à jour la sequence
                     prevSquareType = value.type
                     prevSquareRef = value
                     sequence = 1
@@ -325,6 +395,8 @@ function GridLayout() {
             })
         })
 
+        // Après avoir récupérer les combinaisons pour les colonnes et les lignes
+        // Pour chaque entrée du tableau, on va récupérer son score et l'incrementer à la variable tempScore
         following.forEach(follow => {
             switch (follow) {
                 case 3:
@@ -352,10 +424,6 @@ function GridLayout() {
             }
         }) 
         
-       
-        // console.log("scoreTemp " + tempScore)
-        // console.log("score " + score)
-
         //Tant que la variable isFirstRenderWithZeroScore n'est pas true, on verifie le 1er score lors de la genration de la grille
         if(!isFirstRenderWithZeroScore) {
             // Si le score est supérieur a 0, on va demander de regenerer la grille
@@ -366,11 +434,46 @@ function GridLayout() {
             if(tempScore === 0) setIsFirstRenderWithZeroScore(true)
         } else {
             //Permet de boucler sur les Ref est d'appliquer un CSS sur chaque square
-            if(squaresRefs.length > 0) {
+
+            if (tempScore > 0) {
+
+                setCombinaisonScoreRef(squaresRefs)
+
+                //Mise en place du CSS pour les square concernées par les combinaisons
                 squaresRefs.forEach(square => {
+                    //Activation du CSS pour mettre en surbrillance les cases concernées
                     square.ref.current.toogleActiveSquare()
+
+                    //Attente d'une seconde pour effacer l'image et le CSS
+                    setTimeout(function() {
+
+                        if (square.ref.current !== null)
+                        {
+                            square.ref.current.setNewRequireImage(10)
+                            square.ref.current.toogleActiveSquare()
+                        }
+                    }, 1000)
                 })
-            }
+
+                //Mise a jour du score
+                setScore(prev => prev + tempScore)
+            } else {
+                // Si le score est à 0, on fait un revert sur le dernier mouvement d'image
+                // Le setTimeOut permet de mettre en place un effet visuel de avant/après
+                if(lastMove !== null) {
+                    setTimeout(function() {
+                        lastMove.first.squareRef.current.handleExchangeImage(lastMove.first.type)
+                        lastMove.first.squareRef.current.toogleActiveSquare()
+    
+    
+                        lastMove.seconde.squareRef.current.handleExchangeImage(lastMove.seconde.type)
+                        lastMove.seconde.squareRef.current.toogleActiveSquare()
+    
+                         // Décrement le nombre d'essais de 1
+                        setTries(prev => prev - 1)
+                    }, 500)
+                }
+            }   
         }
     }
 
@@ -379,6 +482,7 @@ function GridLayout() {
         // A chaque mise a jour de la variable renderCount // On va re render le composant GridLayout
         <View style={styles.center} key={renderCount}>
             <Text style={{marginLeft : 100, marginBottom : 15}}>Nombre d'essais : {tries}</Text>
+            <Text style={{marginLeft : 100, marginBottom : 15}}>score : {score}</Text>
 
             {tries === 0 ? (
                 <Text>Désolé, vous avez perdu</Text>
