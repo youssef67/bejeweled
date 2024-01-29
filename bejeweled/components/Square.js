@@ -73,6 +73,11 @@ const Square = forwardRef((props, ref) => {
         setNewRequireImage(newType) {
             setRequireImage(getRequireImage(newType))
             setType(newType)
+        },
+        setNewRequireImageByInt(number) {
+            let type = images[number]
+            setRequireImage(getRequireImage(type))
+            setType(type)
         }
     }))
 
