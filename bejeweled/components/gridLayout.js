@@ -21,6 +21,7 @@ function GridLayout() {
     const [gridLayout, setGridLayout] = useState(null)
     
     // States pour recherche des combinaisons
+    const [checkAfterUpdateGrid, setCheckAfterUpdateGrid] = useState(false)
     const [detailsEachCombination, setDetailsEachCombination] = useState([])
     const [squaresRefOfCombinations, setSquaresRefOfCombinations] = useState([])
     const [allGridLayoutChecked, setAllGridLayoutChecked] = useState(false)
@@ -54,6 +55,8 @@ function GridLayout() {
             setGridLayout(initialGridLayout);
     }, [renderCount])
 
+
+    // **** 1er RENDU **** //
 
     useEffect(() => {
         // Chargement des données du GRID, tant que isFirstRenderWithZeroScore est FALSE
@@ -107,6 +110,8 @@ function GridLayout() {
 
     useEffect(() => {
         // Si mvt, chargement des données à jour
+        console.log("useEffect au loadAllSquare")
+        console.log("movementMade - " + movementMade)
         if (movementMade) {
             loadAllSquares()
         }
@@ -116,12 +121,14 @@ function GridLayout() {
     // MAJ de la grille en cas de mvt non scoré
     useEffect(() => {
         if(wrongMove) {
-            setTimeout(function() {
-                imagesInfo.first.squareRef.current.handleExchangeImage(imagesInfo.first.type)
-                imagesInfo.first.squareRef.current.toogleActiveSquare()
+            // setTimeout(function() {
+                //*** en commentaire pour permettre le déplacement sans contrainte durant le dev */
+
+                // imagesInfo.first.squareRef.current.handleExchangeImage(imagesInfo.first.type)
+                // imagesInfo.first.squareRef.current.toogleActiveSquare()
     
-                imagesInfo.seconde.squareRef.current.handleExchangeImage(imagesInfo.seconde.type)
-                imagesInfo.seconde.squareRef.current.toogleActiveSquare()
+                // imagesInfo.seconde.squareRef.current.handleExchangeImage(imagesInfo.seconde.type)
+                // imagesInfo.seconde.squareRef.current.toogleActiveSquare()
     
                 setImagesInfo(null)
                 setAdjacentSquares(null)
@@ -129,8 +136,8 @@ function GridLayout() {
                 setMovementMade(false)
                 
                 // Décrementation du nb d'essaies
-                setTries(prev => prev - 1)
-            }, 500)
+                // setTries(prev => prev - 1)
+            // }, 500)
         }
     }, [wrongMove])
 
@@ -157,36 +164,34 @@ function GridLayout() {
             })
     
             // Si mvt a scoré, MAJ de la grille
-            if (movementMade) {
-                setTimeout(() => {
-                    // Boucle sur les colonnes ayant des combinaisons
-                    columnToUpdate.forEach(col => {
-                        // Cette ensemble d'opération ne concerne qu'une colonne à la fois
-    
-                        // Récupération des SQUARES qui ne font pas partis de la/des combinaison(s)
-                        let arrSquareToKeep = allSquares[0][col].filter(square => !squaresRefOfCombinations.includes(square))
-        
-                        // Calcul du nombre de cases concerné par la ou les combinaison(s)
-                        let nbWhiteSquare = 8 - arrSquareToKeep.length
-        
-                        //MAJ visuelle de la colonne
-                        // Début à l'index 0 (haut de la grille) avec les cases vides d'images
-                        for (let index = 0; index < nbWhiteSquare; index++) {
-                            allSquares[0][col][index].ref.current.setNewRequireImage("none")
-                        }
-        
-                        // Enchainement avec les cases restantes et pas concernées par la combinaison
-                        for (let index = 0; index < arrSquareToKeep.length; index++) {
-                            allSquares[0][col][index + nbWhiteSquare].ref.current.setNewRequireImage(arrSquareToKeep[index].type)
-                        }  
-                    })
-                }, 1000);
-    
-            }
+            // setTimeout(() => {
+                // Boucle sur les colonnes ayant des combinaisons
+            columnToUpdate.forEach(col => {
+                // Cette ensemble d'opération ne concerne qu'une colonne à la fois
+
+                // Récupération des SQUARES qui ne font pas partis de la/des combinaison(s)
+                let arrSquareToKeep = allSquares[0][col].filter(square => !squaresRefOfCombinations.includes(square))
+
+                // Calcul du nombre de cases concerné par la ou les combinaison(s)
+                let nbWhiteSquare = 8 - arrSquareToKeep.length
+
+                //MAJ visuelle de la colonne
+                // Début à l'index 0 (haut de la grille) avec les cases vides d'images
+                for (let index = 0; index < nbWhiteSquare; index++) {
+                    allSquares[0][col][index].ref.current.setNewRequireImage("none")
+                }
+
+                // Enchainement avec les cases restantes et pas concernées par la combinaison
+                for (let index = 0; index < arrSquareToKeep.length; index++) {
+                    allSquares[0][col][index + nbWhiteSquare].ref.current.setNewRequireImage(arrSquareToKeep[index].type)
+                }  
+            })
+
+            loadAllSquares()
+            // }, 1000);
     
             setDetailsEachCombination([])
             setSquaresRefOfCombinations([])
-            setMovementMade(false)
             setImagesInfo(null)
             setAdjacentSquares(null)
         }
@@ -195,6 +200,7 @@ function GridLayout() {
 
     // Vérification du résultat du parsing de la grille
     useEffect(() => {
+        console.log("useffect allGridLayoutChecked")
         if (allGridLayoutChecked) {
 
             // Remise à false du flag de contrôle
@@ -217,6 +223,7 @@ function GridLayout() {
             else {
                 // Remise à false du flag de contrôle
                 setAllGridLayoutChecked(false)
+                
 
                 // Si tableau des combinaisons à des valeurs
                 if(detailsEachCombination.length > 0) {
@@ -250,7 +257,7 @@ function GridLayout() {
                         }
                     })
     
-                    //console.log("tempScore - " + tempScore)
+                    console.log("tempScore - " + tempScore)
                         
                     //Mise en place du CSS pour les square concernées par les combinaisons
                     squaresRefOfCombinations.forEach(square => {
@@ -258,24 +265,18 @@ function GridLayout() {
                         square.ref.current.toogleActiveSquare()
 
                         //Attente d'une seconde pour effacer l'image et le CSS
-                        setTimeout(function() {
+                        // setTimeout(function() {
                             square.ref.current.setNewRequireImage("none")
                             square.ref.current.toogleActiveSquare()
-                        }, 800)
+                        // }, 800)
                     })
 
                     //Mise a jour du score
                     setScore(prev => prev + tempScore)
                 }
                 else {
-                    //************************/
-                    // Set a garder pour le dev **//
-                    // Permet de déplacer sans contraintes les images en remettant a jour les bons useState
-                    // setImagesInfo(null)
-                    // setAdjacentSquares(null)
-                    // setMovementMade(false)
-
-                    // // Si mvt effectué et score == 0
+                    console.log("mvt sans scorer")
+                    //Si mvt effectué et score == 0
                     setWrongMove(true)
                 }   
                 
@@ -324,13 +325,13 @@ function GridLayout() {
 
     // Variable permettant de charger l'état du gridLayout
     const loadAllSquares = () => {
-
         let squaresData = [
             [[], [], [], [], [], [], [], []], // Tableau de 8 tableau --- chaque tableau représentes 1 colonne (col)
             [[], [], [], [], [], [], [], []] // Tableau de 8 tableau --- chaque tableau représentes 1 ligne (row)
         ]
 
         if (gridRefs.current[0].current !== null) {
+            console.log("dans la function")
             // Boucle sur chaque square du GRID
             gridRefs.current.forEach((square) => {
     
@@ -353,7 +354,11 @@ function GridLayout() {
         searchInColumnOrRow(0)
         // Recherche dans les lignes
         searchInColumnOrRow(1)
+
+        // if (checkAfterUpdateGrid) setCheckAfterUpdateGrid(false)
         // On indique avoir vérifier l'ensemble de la grid
+        console.log("verification des colonnes et des lignes")
+        console.log("setAllGridLayoutChecked à true")
         setAllGridLayoutChecked(true)
     }
 
