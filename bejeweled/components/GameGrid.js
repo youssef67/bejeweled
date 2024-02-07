@@ -1,6 +1,9 @@
 import  React, {useEffect, useState} from 'react';
-import { View, StyleSheet, Alert, Text} from 'react-native';
-import { testEnchainementDeTroisPlusTroisSurColonne, testEnchainementDeTroisEtTroisSurColonneEtLignePlusTrois, testEnchainementDeCinqEtTroisSurColonneEtLignePlusCinqPlusTrois } from "../core/utils";
+import { View, StyleSheet, Alert, Text, Button} from 'react-native';
+import { testEnchainementDeTroisPlusTroisSurColonne, 
+        testEnchainementDeTroisEtTroisSurColonneEtLignePlusTrois, 
+        testEnchainementDeCinqEtTroisSurColonneEtLignePlusCinqPlusTrois } 
+        from "../core/var_test";
 import Square from './Square';
 
 function GameGrid() {
@@ -9,11 +12,10 @@ function GameGrid() {
     const [firstRender, setFirstRender] = useState(false)
     const [firstClick, setFirstClick] = useState(null)
     const [secondClick, setSecondClick] = useState(null)
-    const [tries, setTries] = useState(20)
+    const [tries, setTries] = useState(5)
     const [score, setScore] = useState(0)
 
     useEffect(() => {
-        //Créer un tableau de 64 cases
         if(!firstRender)
             createFirstRenderGridLayout()
 
@@ -22,7 +24,37 @@ function GameGrid() {
 
     }, [secondClick])
 
+    // Création de la grille au démarrage
+    function createFirstRenderGridLayout() {
+        let tempGridLayout = Array.from({ length: 8 * 8 }, (_, index) => {
+            
+            const row = Math.floor(index / 8)
+            const column = index % 8
 
+            return {
+                id: index,
+                indexType: Math.floor(Math.random() * 7),
+                row,
+                column
+            }
+        });
+
+        // Si au 1er rendu, presence de combinaisons - on relance la fonction
+        if(getScoreFromGridLayout(tempGridLayout).scoreAllGridLayout > 0) createFirstRenderGridLayout()
+        else {
+
+            //*** DEBUT VARIABLES DE TEST ***/
+            // setGridLayout(testEnchainementDeTroisPlusTroisSurColonne)
+            // setGridLayout(testEnchainementDeTroisEtTroisSurColonneEtLignePlusTrois)
+            setGridLayout(testEnchainementDeCinqEtTroisSurColonneEtLignePlusCinqPlusTrois)
+            //*** FIN VARIABLES DE TEST ***/
+
+            // setGridLayout(tempGridLayout)
+            setFirstRender(true)
+        } 
+    }
+
+    // Fonction passée en props au composant SQUARE
     const handlePress = (id, indexType, row, column) => {
 
         if (firstClick === null) {
@@ -47,29 +79,33 @@ function GameGrid() {
     }
 
 
+    // Permutation des 2 images selectionnées
     function swipeImage() {
 
         let tempGridLayout = [...gridLayout]
-
+        // Variables permettant de définir si les 2 cases sont adjacentes
         let diffCol = Math.abs(firstClick.column - secondClick.column)
         let diffRow = Math.abs(firstClick.row - secondClick.row)
 
         if((diffCol === 0 && diffRow === 0) ||  (diffCol > 1 || diffRow > 1)) {
             console.log("erreur dans le mvt, pas case adjacente")
         } else {
+            //Changement d'images
             tempGridLayout[firstClick.id].indexType = secondClick.indexType
             tempGridLayout[secondClick.id].indexType = firstClick.indexType
 
             setTimeout(() => {
+                // Lancement de la vérification dans la grille
                 let scoreAfterMove = checkGridLayoutAfterMove(tempGridLayout)
                 setScore(prev => prev + scoreAfterMove)
 
+                //MAJ visuelle 
                 setGridLayout(tempGridLayout)
 
-                if (scoreAfterMove > 0) {
-                    additionalCheck()
-                }
-            }, 2000);
+                // Si sur le 1er check, l'utilisateur à scoré et par conséquent provoqué une modification de la GRID
+                // Lancement des vérifications complémentaires
+                if (scoreAfterMove > 0) additionalCheck()
+            }, 800);
         }
     
         setFirstClick(null)
@@ -77,62 +113,82 @@ function GameGrid() {
     }
 
 
-    function checkGridLayoutAfterMove(tempGridLayout, additionalCheck = false) {
+    // Vérification de la GRID et la présence de combinaisons
+    function checkGridLayoutAfterMove(tempGridLayout, IsAdditionalCheck = false) {
 
+        // Récupération du score présent au travers des différentes combinaisons
         let response = getScoreFromGridLayout(tempGridLayout)
         console.log("checkGridLayoutAfterMove")
         console.log(response.squaresAllGridLayout)
         
+        // Si pas de combinaison, revert des image et decrementation des essais
         if (response.scoreAllGridLayout === 0) {
 
-            if (!additionalCheck) {
+            let getSquarewithNoImage = tempGridLayout.filter(square => square.indexType === null)
 
-                // tempGridLayout[firstClick.id].indexType = firstClick.indexType
-                // tempGridLayout[secondClick.id].indexType = secondClick.indexType
-    
+            if (getSquarewithNoImage.length > 0 ) {
+                getSquarewithNoImage.forEach(square => {
+                    tempGridLayout[square.id].indexType = Math.floor(Math.random() * 7)
+                });
+
+                setGridLayout(tempGridLayout)
+
+                additionalCheck()
+            }
+
+            if (!IsAdditionalCheck) {
+                //*** TEST ***/ A enlever quand on repose en PROD
+                tempGridLayout[firstClick.id].indexType = firstClick.indexType
+                tempGridLayout[secondClick.id].indexType = secondClick.indexType
                 setTries(prev => prev - 1)
+                console.log("erreur, pas de score effectué")
             }
         } else {
-            // On récupére les squares concernées par le score et on supprime les doublons
+            // Suppresion des doublons potentiels sur les Squares ayant générés un score
             let scoredSquaresAfterMove = Array.from(new Map(response.squaresAllGridLayout.map(square => [square.id, square])).values())
 
-            //Pour chaque colonne du tableau
+            // i represente à chaque itération 1 colonne
             for (let i = 0; i <= 7; i++) {
                 console.log("********************** COLONNE " + i + " **********************************")
-                // On selectionne du tableau des squares ayant scorées et qui appartiennent à la colonne i
+                // A partir des ttes les squares ayant scorées - On conserve uniquement les cases de la colonne i
                 let scoredSquaresBelongingCol = scoredSquaresAfterMove.filter(square => square.column === i)
                 
-                // Si au moins un squares qui a scoré est présent dans cette colonne
-                if(scoredSquaresBelongingCol.length > 0) {
-                    //On conserve les ids
+                if (scoredSquaresBelongingCol.length > 0) {
+                    // Récupèration UNIQUEMENT des Squares Ids ayant scorés
                     let scoredSquaresId = scoredSquaresBelongingCol.map(square => square.id)
                     console.log("scoredSquaresId " + scoredSquaresId)
-                    //On récupère l'ensemble des ids de la colonnes
+                    // Récupèration de TOUS les ids de la colonne i
                     let getAllIdOfColmum = tempGridLayout.filter(square => square.column === i).map(square => square.id).reverse()
                     console.log("getAllIdOfColmum " + getAllIdOfColmum)
 
-                    //On conserve les infos des squares à garder
+                    // Récupèration des Squares (+ données) de la colonne et non présente dans les Squares ayant scoré EN INVERSANT l'ordre
+                    // Le reverse() nous permettrant d'avoir en position [0], la case la plus basse dans le GRID 
                     let allSquaresOfColumnTokeep = tempGridLayout.filter(square => square.column == i && !scoredSquaresId.includes(square.id)).reverse()
 
-                    if(additionalCheck) {
+                    // Spécifique aux contrôles complémentaires
+                    if (IsAdditionalCheck) {
+                        // Récupération des POTENTIELLES cases vides
                         let oldScoredSquareId = allSquaresOfColumnTokeep.filter(square => square.indexType === null)
-
+                        // MAJ du tableau permettant de connaitre le NB de cases à vider
                         scoredSquaresId = [...oldScoredSquareId, ...scoredSquaresId]
-
+                        // Récupération des cases à GARDER
                         allSquaresOfColumnTokeep = allSquaresOfColumnTokeep.filter(square => square.indexType !== null)
                     } 
 
-
+                    //*** DEBUT LIGNES DE DEBUG ***//
                     console.log("allSquaresOfColumnTokeep")
                     console.log(allSquaresOfColumnTokeep.length)
                     allSquaresOfColumnTokeep.forEach(e => {
                         console.log(Object.values(e)) 
                     })
+                    //*** FIN LIGNES DE DEBUG ***//
 
                     // On récupère les ids des cases qui n'auront plus d'images
+                    // On démarre de la FIN du tableau
                     let getIdSquareToDelete = getAllIdOfColmum.slice(-scoredSquaresId.length)
                     console.log("getIdSquareToDelete " + getIdSquareToDelete)
                     // On récupère les ids des cases dans lesquelles nous allons redefinir l'images
+                    // On démarre en DEBUT de tableau
                     let getIdSquareToReset = getAllIdOfColmum.slice(0, 8 - scoredSquaresId.length)
                     console.log("getIdSquareToReset " + getIdSquareToReset)
 
@@ -152,50 +208,26 @@ function GameGrid() {
         return response.scoreAllGridLayout
     }
 
-
+    // Vérification complémentaire après MAJ de la Grid
     function additionalCheck() {
         console.log("function additionalCheck")
         let tempGridLayout = [...gridLayout]    
 
         setTimeout(() => {
-            checkGridLayoutAfterMove(tempGridLayout, true)
+            let additionalScore = checkGridLayoutAfterMove(tempGridLayout, true)
 
             setGridLayout(tempGridLayout)
 
-            // console.log(tempGridLayout)
-
-            if (getScoreFromGridLayout(tempGridLayout).scoreAllGridLayout > 0) additionalCheck()
-        }, 5000);
+            // Après MAJ, on relance une recherche de combinaison 
+            // Si TRUE, on re call la fonction
+            if (additionalScore > 0) {
+                setScore(prev => prev + additionalScore)
+                additionalCheck()
+            } 
+                
+        }, 800);
     }
 
-
-    function createFirstRenderGridLayout() {
-        let tempGridLayout = Array.from({ length: 8 * 8 }, (_, index) => {
-            
-            const row = Math.floor(index / 8)
-            const column = index % 8
-
-            return {
-                id: index,
-                indexType: Math.floor(Math.random() * 7),
-                row,
-                column
-            }
-        });
-
-        if(getScoreFromGridLayout(tempGridLayout).scoreAllGridLayout > 0) createFirstRenderGridLayout()
-        else {
-
-            //TEST
-            // setGridLayout(testEnchainementDeTroisPlusTroisSurColonne)
-            // setGridLayout(testEnchainementDeTroisEtTroisSurColonneEtLignePlusTrois)
-            setGridLayout(testEnchainementDeCinqEtTroisSurColonneEtLignePlusCinqPlusTrois)
-
-
-            // setGridLayout(tempGridLayout)
-            setFirstRender(true)
-        } 
-    }
 
     function getScoreFromGridLayout(gridLayout) {
         let response;
@@ -203,13 +235,14 @@ function GameGrid() {
         let squaresAllGridLayout = []
         
         for(let i = 0; i <= 7; i++) {
-
             console.log("colonne ou row n° " + i)
+            // Récupération des Squares de la colonne i
             let arrColumn = gridLayout.filter(square => square.column == i)
             response = getScoreAndSquaresByLine(arrColumn)
             scoreAllGridLayout += response.scoreByLine
             squaresAllGridLayout = [...squaresAllGridLayout, ...response.squaresByLine]
 
+            // Récupération des Squares de la row i
             let arrRow = gridLayout.filter(square => square.row == i)
             response = getScoreAndSquaresByLine(arrRow)
             scoreAllGridLayout += response.scoreByLine
@@ -221,14 +254,8 @@ function GameGrid() {
 
 
     function getScoreAndSquaresByLine(arr) {
-        // [1, 1, 2, 0, 7, 5, 5, 3] ---> le score est de 0
-        // [1, 1, 1, 0, 7, 5, 5, 3] ---> le score est de 50
-        // [1, 1, 0, 0, 7, 5, 5, 5] ---> le score est de 50
-        // [1, 1, 0, 0, 0, 5, 5, 6] ---> le score est de 50
-        // [1, 1, 1, 1, 0, 5, 5, 6] ---> le score est de 150
-        // [1, 1, 1, 1, 0, 5, 5, 5] ---> le score est de 200
-        // [1, 1, 1, 1, 1, 5, 5, 5] ---> le score est de 200
-        //let arrTest = [1, 1, 1, 1, 1, 5, 5, 5]
+        // Si lancement de test - modifier arr par arrTest
+        //let arrTest = scoreCinquanteDebut
         let scoreByLine = 0
         let squaresByLine = []
         let count = 1
@@ -240,11 +267,8 @@ function GameGrid() {
             if(currentSquare === previousSquare && currentSquare !== null) {
                 count++
 
-                if (count === 2) {
-                    squaresByLine = [...squaresByLine, arr[index - 1], value]
-                } else {
-                    squaresByLine = [...squaresByLine, value]
-                }
+                if (count === 2) squaresByLine = [...squaresByLine, arr[index - 1], value]
+                else squaresByLine = [...squaresByLine, value]
             }
             
             if (currentSquare !== previousSquare || index === 7) {
@@ -281,7 +305,11 @@ function GameGrid() {
     return (
         <View>
             <View>
-                <Text>score : {score}</Text>
+            <Button
+                title="Press me"
+                onPress={() => setScore(0)}
+            />
+                <Text>score effectué sur ce tour : {score}</Text>
             </View>
             <View>
                 <Text>essais : {tries}</Text>
@@ -314,6 +342,5 @@ const styles = StyleSheet.create({
       },
     
   });
-
 
 export default GameGrid
