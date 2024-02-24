@@ -118,8 +118,6 @@ function GameGrid() {
 
         // Récupération du score présent au travers des différentes combinaisons
         let response = getScoreFromGridLayout(tempGridLayout)
-        console.log("checkGridLayoutAfterMove")
-        console.log(response.squaresAllGridLayout)
         
         // Si pas de combinaison, revert des image et decrementation des essais
         if (response.scoreAllGridLayout === 0) {
@@ -137,7 +135,6 @@ function GameGrid() {
             }
 
             if (!IsAdditionalCheck) {
-                //*** TEST ***/ A enlever quand on repose en PROD
                 tempGridLayout[firstClick.id].indexType = firstClick.indexType
                 tempGridLayout[secondClick.id].indexType = secondClick.indexType
                 setTries(prev => prev - 1)
@@ -149,17 +146,14 @@ function GameGrid() {
 
             // i represente à chaque itération 1 colonne
             for (let i = 0; i <= 7; i++) {
-                console.log("********************** COLONNE " + i + " **********************************")
                 // A partir des ttes les squares ayant scorées - On conserve uniquement les cases de la colonne i
                 let scoredSquaresBelongingCol = scoredSquaresAfterMove.filter(square => square.column === i)
                 
                 if (scoredSquaresBelongingCol.length > 0) {
                     // Récupèration UNIQUEMENT des Squares Ids ayant scorés
                     let scoredSquaresId = scoredSquaresBelongingCol.map(square => square.id)
-                    console.log("scoredSquaresId " + scoredSquaresId)
                     // Récupèration de TOUS les ids de la colonne i
                     let getAllIdOfColmum = tempGridLayout.filter(square => square.column === i).map(square => square.id).reverse()
-                    console.log("getAllIdOfColmum " + getAllIdOfColmum)
 
                     // Récupèration des Squares (+ données) de la colonne et non présente dans les Squares ayant scoré EN INVERSANT l'ordre
                     // Le reverse() nous permettrant d'avoir en position [0], la case la plus basse dans le GRID 
@@ -175,22 +169,12 @@ function GameGrid() {
                         allSquaresOfColumnTokeep = allSquaresOfColumnTokeep.filter(square => square.indexType !== null)
                     } 
 
-                    //*** DEBUT LIGNES DE DEBUG ***//
-                    console.log("allSquaresOfColumnTokeep")
-                    console.log(allSquaresOfColumnTokeep.length)
-                    allSquaresOfColumnTokeep.forEach(e => {
-                        console.log(Object.values(e)) 
-                    })
-                    //*** FIN LIGNES DE DEBUG ***//
-
                     // On récupère les ids des cases qui n'auront plus d'images
                     // On démarre de la FIN du tableau
                     let getIdSquareToDelete = getAllIdOfColmum.slice(-scoredSquaresId.length)
-                    console.log("getIdSquareToDelete " + getIdSquareToDelete)
                     // On récupère les ids des cases dans lesquelles nous allons redefinir l'images
                     // On démarre en DEBUT de tableau
                     let getIdSquareToReset = getAllIdOfColmum.slice(0, 8 - scoredSquaresId.length)
-                    console.log("getIdSquareToReset " + getIdSquareToReset)
 
                     //On redefini les images en partant du bas
                     for (let j = 0; j < getIdSquareToReset.length ; j++) {
@@ -210,7 +194,6 @@ function GameGrid() {
 
     // Vérification complémentaire après MAJ de la Grid
     function additionalCheck() {
-        console.log("function additionalCheck")
         let tempGridLayout = [...gridLayout]    
 
         setTimeout(() => {
@@ -235,7 +218,6 @@ function GameGrid() {
         let squaresAllGridLayout = []
         
         for(let i = 0; i <= 7; i++) {
-            console.log("colonne ou row n° " + i)
             // Récupération des Squares de la colonne i
             let arrColumn = gridLayout.filter(square => square.column == i)
             response = getScoreAndSquaresByLine(arrColumn)
@@ -301,12 +283,56 @@ function GameGrid() {
         return {scoreByLine : scoreByLine, squaresByLine : squaresByLine}
     }
 
+    function hint() {
+        console.log("hint button")
+
+    
+
+        for (let i = 0; i < gridLayout.length; i++) {
+            console.log(gridLayout[i])
+
+            let droite
+            let gauche
+            let bas
+            let haut
+
+            if (gridLayout[i].row === 0) {
+                console.log("kekd")
+                bas = gridLayout.filter(s => s.column == gridLayout[i].column && s.row == gridLayout[i].row + 1)[0].row
+            } else if (gridLayout[i].row === 7) {
+                haut = gridLayout.filter(s => s.column == gridLayout[i].column && s.row == gridLayout[i].row - 1)[0].row
+            } else {
+                haut = gridLayout.filter(s => s.column == gridLayout[i].column && s.row == gridLayout[i].row - 1)[0].row
+                bas = gridLayout.filter(s => s.column == gridLayout[i].column && s.row == gridLayout[i].row + 1)[0].row
+            }
+
+            if (gridLayout[i].col === 0) {
+                droite = gridLayout.filter(s => s.column == gridLayout[i].column + 1 && s.row == gridLayout[i].row)[0].row
+            } else if (gridLayout[i].row === 7) {
+                gauche = gridLayout.filter(s => s.column == gridLayout[i].column - 1 && s.row == gridLayout[i].row)[0].row
+            } else {
+                droite = gridLayout.filter(s => s.column == gridLayout[i].column + 1 && s.row == gridLayout[i].row)[0].row
+                gauche = gridLayout.filter(s => s.column == gridLayout[i].column - 1 && s.row == gridLayout[i].row)[0].row
+            }
+
+            
+
+
+        }
+    }
+
 
     return (
         <View>
+            <View style={{ marginBottom: 10 }}>
+                <Button
+                title="hint"
+                onPress={() => hint()}
+            />
+            </View>
             <View>
             <Button
-                title="Press me"
+                title="reset le score"
                 onPress={() => setScore(0)}
             />
                 <Text>score effectué sur ce tour : {score}</Text>

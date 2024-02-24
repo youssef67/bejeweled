@@ -177,7 +177,7 @@ export const testEnchainementDeTroisPlusTroisSurColonne = [
     { column: 5, id: 29, indexType: 5, row: 3 },
     { column: 6, id: 30, indexType: 6, row: 3 },
     { column: 7, id: 31, indexType: 5, row: 3 },
-    { column: 0, id: 32, indexType: 3, row: 4 },
+    { column: 0, id: 32, indexType: 5, row: 4 },
     { column: 1, id: 33, indexType: 6, row: 4 },
     { column: 2, id: 34, indexType: 1, row: 4 },
     { column: 3, id: 35, indexType: 3, row: 4 },
