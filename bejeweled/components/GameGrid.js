@@ -2,13 +2,15 @@ import  React, {useEffect, useState} from 'react';
 import { View, StyleSheet, Alert, Text, Button} from 'react-native';
 import { testEnchainementDeTroisPlusTroisSurColonne, 
         testEnchainementDeTroisEtTroisSurColonneEtLignePlusTrois, 
-        testEnchainementDeCinqEtTroisSurColonneEtLignePlusCinqPlusTrois } 
+        testEnchainementDeCinqEtTroisSurColonneEtLignePlusCinqPlusTrois,
+        testHint } 
         from "../core/var_test";
 import Square from './Square';
 
 function GameGrid() {
 
     const [gridLayout, setGridLayout] = useState([])
+    const [combinaisonsHint, setCombinaisonHint] = useState([])
     const [firstRender, setFirstRender] = useState(false)
     const [firstClick, setFirstClick] = useState(null)
     const [secondClick, setSecondClick] = useState(null)
@@ -46,7 +48,8 @@ function GameGrid() {
             //*** DEBUT VARIABLES DE TEST ***/
             // setGridLayout(testEnchainementDeTroisPlusTroisSurColonne)
             // setGridLayout(testEnchainementDeTroisEtTroisSurColonneEtLignePlusTrois)
-            setGridLayout(testEnchainementDeCinqEtTroisSurColonneEtLignePlusCinqPlusTrois)
+            // setGridLayout(testEnchainementDeCinqEtTroisSurColonneEtLignePlusCinqPlusTrois)
+            setGridLayout(testHint)
             //*** FIN VARIABLES DE TEST ***/
 
             // setGridLayout(tempGridLayout)
@@ -284,41 +287,87 @@ function GameGrid() {
     }
 
     function hint() {
-        console.log("hint button")
+        let tempGridLayout = gridLayout.map(e => Array.isArray(e) ? [...e] : e)
+        let allCombination = []
+        
+        // console.log(tempGridLayout)
+        
+        for (let i = 0; i < 1; i++) {
 
-    
+            let right, left, down, up
+            currentSquareId = tempGridLayout[i].id
+            let combination = []
 
-        for (let i = 0; i < gridLayout.length; i++) {
-            console.log(gridLayout[i])
+            // console.log("carre en cours")
+            // console.log(tempGridLayout[currentSquareId])
 
-            let droite
-            let gauche
-            let bas
-            let haut
+            down = tempGridLayout.filter(s => s.column == gridLayout[i].column && s.row == gridLayout[i].row + 1)[0] ?? null
+            up = tempGridLayout.filter(s => s.column == gridLayout[i].column && s.row == gridLayout[i].row - 1)[0] ?? null
+            right = tempGridLayout.filter(s => s.column == gridLayout[i].column + 1 && s.row == gridLayout[i].row)[0] ?? null
+            left = tempGridLayout.filter(s => s.column == gridLayout[i].column - 1 && s.row == gridLayout[i].row)[0] ?? null
 
-            if (gridLayout[i].row === 0) {
-                console.log("kekd")
-                bas = gridLayout.filter(s => s.column == gridLayout[i].column && s.row == gridLayout[i].row + 1)[0].row
-            } else if (gridLayout[i].row === 7) {
-                haut = gridLayout.filter(s => s.column == gridLayout[i].column && s.row == gridLayout[i].row - 1)[0].row
-            } else {
-                haut = gridLayout.filter(s => s.column == gridLayout[i].column && s.row == gridLayout[i].row - 1)[0].row
-                bas = gridLayout.filter(s => s.column == gridLayout[i].column && s.row == gridLayout[i].row + 1)[0].row
+            let adjacentsSquares = [up, down, right, left].filter(e => e !== null)
+
+            // console.log("console adjacentes")
+            // console.log(adjacentsSquares)
+
+
+            for (let j = 0; j < adjacentsSquares.length; j++) {
+                // console.log("lecture case adjacente")
+                // console.log(currentSquareId)
+                // console.log(tempGridLayout[currentSquareId])
+                // console.log(adjacentsSquares[j])
+                console.log(allCombination)
+                console.log()      
+
+                if (tempGridLayout[currentSquareId].indexType != adjacentsSquares[j].indexType && !containsArray(allCombination, [currentSquareId, adjacentsSquares[j].id])) {
+                    console.log("swipe image")
+                    console.log("currentSquare.id " + currentSquareId + " et type " + tempGridLayout[currentSquareId].indexType)
+                    console.log("adjacentsSquares[j].id " + adjacentsSquares[j].id + " et type " + adjacentsSquares[j].indexType)
+                    response = []
+
+                    let indexTypeCurrentSquare = tempGridLayout[currentSquareId].indexType
+                    let indexTypeAdjacentSquare = adjacentsSquares[j].indexType
+
+                    tempGridLayout[currentSquareId].indexType = indexTypeAdjacentSquare
+                    tempGridLayout[adjacentsSquares[j].id].indexType = indexTypeCurrentSquare
+
+                    // console.log(tempGridLayout)
+                    // if (!containsArray())
+                    response = getScoreFromGridLayout(tempGridLayout).squaresAllGridLayout
+
+                    if(response.length > 0)  response = response.filter(e => e.id != currentSquareId)
+
+                    tempGridLayout[currentSquareId].indexType = indexTypeCurrentSquare
+                    tempGridLayout[adjacentsSquares[j].id].indexType = indexTypeAdjacentSquare
+
+                    response = [...response, tempGridLayout[adjacentsSquares[j].id]]
+
+                    console.log(response)
+
+                    // console.log("response score")
+                    // console.log(response)
+
+                    // console.log("***********************************")
+                }
+
+                combination.push(currentSquareId, adjacentsSquares[j].id)
+                allCombination.push([...combination])
+
+                let reverseCombination = [...combination].reverse()
+                allCombination.push(reverseCombination)
+
+                combination = []
+
             }
-
-            if (gridLayout[i].col === 0) {
-                droite = gridLayout.filter(s => s.column == gridLayout[i].column + 1 && s.row == gridLayout[i].row)[0].row
-            } else if (gridLayout[i].row === 7) {
-                gauche = gridLayout.filter(s => s.column == gridLayout[i].column - 1 && s.row == gridLayout[i].row)[0].row
-            } else {
-                droite = gridLayout.filter(s => s.column == gridLayout[i].column + 1 && s.row == gridLayout[i].row)[0].row
-                gauche = gridLayout.filter(s => s.column == gridLayout[i].column - 1 && s.row == gridLayout[i].row)[0].row
-            }
-
-            
-
-
         }
+    }
+
+
+    function containsArray(haystack, needle) {
+        return haystack.some(innerArray =>
+            innerArray.length === needle.length && innerArray.every((value, index) => value === needle[index])
+        );
     }
 
 
