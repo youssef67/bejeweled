@@ -284,39 +284,50 @@ function GameGrid() {
     }
 
     function hint() {
-        console.log("hint button")
+        let tempGridLayout = gridLayout
+        console.log(tempGridLayout)
 
-    
 
-        for (let i = 0; i < gridLayout.length; i++) {
-            console.log(gridLayout[i])
+        for (let i = 0; i < 1; i++) {
 
-            let droite
-            let gauche
-            let bas
-            let haut
+            let right, left, down, up
+            currentSquare = tempGridLayout[i]
 
-            if (gridLayout[i].row === 0) {
-                console.log("kekd")
-                bas = gridLayout.filter(s => s.column == gridLayout[i].column && s.row == gridLayout[i].row + 1)[0].row
-            } else if (gridLayout[i].row === 7) {
-                haut = gridLayout.filter(s => s.column == gridLayout[i].column && s.row == gridLayout[i].row - 1)[0].row
-            } else {
-                haut = gridLayout.filter(s => s.column == gridLayout[i].column && s.row == gridLayout[i].row - 1)[0].row
-                bas = gridLayout.filter(s => s.column == gridLayout[i].column && s.row == gridLayout[i].row + 1)[0].row
+            console.log("carre en cours")
+            console.log(currentSquare)
+
+            down = gridLayout.filter(s => s.column == gridLayout[i].column && s.row == gridLayout[i].row + 1)[0] ?? null
+            up = gridLayout.filter(s => s.column == gridLayout[i].column && s.row == gridLayout[i].row - 1)[0] ?? null
+            right = gridLayout.filter(s => s.column == gridLayout[i].column + 1 && s.row == gridLayout[i].row)[0] ?? null
+            left = gridLayout.filter(s => s.column == gridLayout[i].column - 1 && s.row == gridLayout[i].row)[0] ?? null
+
+            let adjacentsSquares = [up, down, right, left].filter(e => e !== null)
+
+            for (let j = 0; j < adjacentsSquares.length; j++) {
+
+                if (tempGridLayout[currentSquare.id].indexType != adjacentsSquares[j].indexType) {
+                    console.log("swipe image")
+                    console.log("currentSquare.id " + currentSquare.id + " et type " + currentSquare.indexType)
+                    console.log("adjacentsSquares[j].id " + adjacentsSquares[j].id + " et type " + adjacentsSquares[j].indexType)
+
+                    let indexTypeCurrentSquare = currentSquare.indexType
+                    let indexTypeAdjacentSquare = adjacentsSquares[j].indexType
+
+                    tempGridLayout[currentSquare.id].indexType = indexTypeAdjacentSquare
+                    tempGridLayout[adjacentsSquares[j].id].indexType = indexTypeCurrentSquare
+
+
+                    let response = getScoreFromGridLayout(tempGridLayout)
+
+                    console.log(response)
+                }
+                console.log(tempGridLayout)
+
             }
 
-            if (gridLayout[i].col === 0) {
-                droite = gridLayout.filter(s => s.column == gridLayout[i].column + 1 && s.row == gridLayout[i].row)[0].row
-            } else if (gridLayout[i].row === 7) {
-                gauche = gridLayout.filter(s => s.column == gridLayout[i].column - 1 && s.row == gridLayout[i].row)[0].row
-            } else {
-                droite = gridLayout.filter(s => s.column == gridLayout[i].column + 1 && s.row == gridLayout[i].row)[0].row
-                gauche = gridLayout.filter(s => s.column == gridLayout[i].column - 1 && s.row == gridLayout[i].row)[0].row
-            }
+            console.log(adjacentsSquares)
 
-            
-
+     
 
         }
     }
