@@ -2,13 +2,19 @@ import  React, {useEffect, useState} from 'react';
 import { View, StyleSheet, Alert, Text, Button} from 'react-native';
 import { testEnchainementDeTroisPlusTroisSurColonne, 
         testEnchainementDeTroisEtTroisSurColonneEtLignePlusTrois, 
-        testEnchainementDeCinqEtTroisSurColonneEtLignePlusCinqPlusTrois } 
+        testEnchainementDeCinqEtTroisSurColonneEtLignePlusCinqPlusTrois,
+        testHint,
+        testHintSansResultat } 
         from "../core/var_test";
 import Square from './Square';
 
 function GameGrid() {
 
     const [gridLayout, setGridLayout] = useState([])
+
+    const [blinkStyle, setBlinkStyle] = useState({});
+    const [highlightedSquares, setHighlightedSquares] = useState([]);
+
     const [firstRender, setFirstRender] = useState(false)
     const [firstClick, setFirstClick] = useState(null)
     const [secondClick, setSecondClick] = useState(null)
@@ -23,6 +29,32 @@ function GameGrid() {
             swipeImage()
 
     }, [secondClick])
+
+
+    useEffect(() => {
+        if (highlightedSquares.length > 0) {
+            let blinkCount = 0;
+            const interval = setInterval(() => {
+
+                setBlinkStyle(prevStyle => ({
+                    ...prevStyle,
+                    borderWidth : prevStyle.borderWidth === 1 ? 2 : 1,
+                    borderColor: prevStyle.borderColor === 'gray' ? 'red' : 'gray'
+                }))
+                blinkCount += 1
+
+                if(blinkCount === 8) {
+                    clearInterval(interval)
+
+                    setBlinkStyle({})
+                    setHighlightedSquares([])
+                }
+            }, 500)
+
+            return () => clearInterval(interval)
+        }
+    }, [highlightedSquares])
+
 
     // Création de la grille au démarrage
     function createFirstRenderGridLayout() {
@@ -46,10 +78,11 @@ function GameGrid() {
             //*** DEBUT VARIABLES DE TEST ***/
             // setGridLayout(testEnchainementDeTroisPlusTroisSurColonne)
             // setGridLayout(testEnchainementDeTroisEtTroisSurColonneEtLignePlusTrois)
-            setGridLayout(testEnchainementDeCinqEtTroisSurColonneEtLignePlusCinqPlusTrois)
+            // setGridLayout(testEnchainementDeCinqEtTroisSurColonneEtLignePlusCinqPlusTrois)
+            // setGridLayout(testHintSansResultat)
             //*** FIN VARIABLES DE TEST ***/
 
-            // setGridLayout(tempGridLayout)
+            setGridLayout(tempGridLayout)
             setFirstRender(true)
         } 
     }
@@ -283,53 +316,86 @@ function GameGrid() {
         return {scoreByLine : scoreByLine, squaresByLine : squaresByLine}
     }
 
+    // Fonction permettant de mettre en evidence une combinaison
     function hint() {
-        let tempGridLayout = gridLayout
-        console.log(tempGridLayout)
 
+        let tempGridLayout = gridLayout.map(e => Array.isArray(e) ? [...e] : e)
+        let allCombination = []
+        let combinationFound = false;
+               
+        // parcours l'ensemble des cases de la grille
+        for (let i = 0; i < tempGridLayout.length; i++) {
 
-        for (let i = 0; i < 1; i++) {
+            // Si pas de combinaison encore trouvé, on vérifie la case scopée
+            if (!combinationFound) {
+                let right, left, down, up
+                currentSquareId = tempGridLayout[i].id
+                let combination = []
+    
+                // On récupére les cases adjacentes à la case en cours de vérification
+                down = tempGridLayout.filter(s => s.column == gridLayout[i].column && s.row == gridLayout[i].row + 1)[0] ?? null
+                up = tempGridLayout.filter(s => s.column == gridLayout[i].column && s.row == gridLayout[i].row - 1)[0] ?? null
+                right = tempGridLayout.filter(s => s.column == gridLayout[i].column + 1 && s.row == gridLayout[i].row)[0] ?? null
+                left = tempGridLayout.filter(s => s.column == gridLayout[i].column - 1 && s.row == gridLayout[i].row)[0] ?? null
+    
+                // On filtre pour garder uniquement les cases valides
+                let adjacentsSquares = [up, down, right, left].filter(e => e !== null)
 
-            let right, left, down, up
-            currentSquare = tempGridLayout[i]
-
-            console.log("carre en cours")
-            console.log(currentSquare)
-
-            down = gridLayout.filter(s => s.column == gridLayout[i].column && s.row == gridLayout[i].row + 1)[0] ?? null
-            up = gridLayout.filter(s => s.column == gridLayout[i].column && s.row == gridLayout[i].row - 1)[0] ?? null
-            right = gridLayout.filter(s => s.column == gridLayout[i].column + 1 && s.row == gridLayout[i].row)[0] ?? null
-            left = gridLayout.filter(s => s.column == gridLayout[i].column - 1 && s.row == gridLayout[i].row)[0] ?? null
-
-            let adjacentsSquares = [up, down, right, left].filter(e => e !== null)
-
-            for (let j = 0; j < adjacentsSquares.length; j++) {
-
-                if (tempGridLayout[currentSquare.id].indexType != adjacentsSquares[j].indexType) {
-                    console.log("swipe image")
-                    console.log("currentSquare.id " + currentSquare.id + " et type " + currentSquare.indexType)
-                    console.log("adjacentsSquares[j].id " + adjacentsSquares[j].id + " et type " + adjacentsSquares[j].indexType)
-
-                    let indexTypeCurrentSquare = currentSquare.indexType
-                    let indexTypeAdjacentSquare = adjacentsSquares[j].indexType
-
-                    tempGridLayout[currentSquare.id].indexType = indexTypeAdjacentSquare
-                    tempGridLayout[adjacentsSquares[j].id].indexType = indexTypeCurrentSquare
-
-
-                    let response = getScoreFromGridLayout(tempGridLayout)
-
-                    console.log(response)
+                // loop sur les cases adjacentes
+                for (let j = 0; j < adjacentsSquares.length; j++) {
+    
+                    // Si case en cours de vérif est identique à la case adjacentes ---> PAS DE VERIFCATION
+                    // Si elle est deja une combinaison précedement vérifié ---> PAS DE VERIFCATION
+                    if (tempGridLayout[currentSquareId].indexType != adjacentsSquares[j].indexType && !containsArray(allCombination, [currentSquareId, adjacentsSquares[j].id])) {
+    
+                        // On récupére le type d'images des 2 cases
+                        let indexTypeCurrentSquare = tempGridLayout[currentSquareId].indexType
+                        let indexTypeAdjacentSquare = adjacentsSquares[j].indexType
+    
+                        // Swipe d'image
+                        tempGridLayout[currentSquareId].indexType = indexTypeAdjacentSquare
+                        tempGridLayout[adjacentsSquares[j].id].indexType = indexTypeCurrentSquare
+    
+                        // Si le swipe génere un score - activation du CSS + set combinationFound à TRUE
+                        if (getScoreFromGridLayout(tempGridLayout).scoreAllGridLayout > 0) {
+                            setHighlightedSquares([currentSquareId, adjacentsSquares[j].id])
+                            combinationFound = true;
+                        }
+    
+                        // Swipe d'image pour un retour à l'état initial de la grille
+                        tempGridLayout[currentSquareId].indexType = indexTypeCurrentSquare
+                        tempGridLayout[adjacentsSquares[j].id].indexType = indexTypeAdjacentSquare
+    
+                        // Si combination trouvé / stoppe la boucle
+                        if (combinationFound) break
+                    }
+    
+                    // Ajout des combinaisons vérifiées
+                    combination.push(currentSquareId, adjacentsSquares[j].id)
+                    allCombination.push([...combination])
+    
+                    let reverseCombination = [...combination].reverse()
+                    allCombination.push(reverseCombination)
+    
+                    combination = []
                 }
-                console.log(tempGridLayout)
-
+            } else {
+                break
             }
-
-            console.log(adjacentsSquares)
-
-     
-
         }
+
+        // Si aucun combinaison, on relance la génération de la grille
+        if (!combinationFound) {
+            createFirstRenderGridLayout()
+            console.log("pas de combinaison")
+        } 
+    }
+    
+
+    function containsArray(haystack, needle) {
+        return haystack.some(innerArray =>
+            innerArray.length === needle.length && innerArray.every((value, index) => value === needle[index])
+        );
     }
 
 
@@ -357,7 +423,11 @@ function GameGrid() {
                 <View style={styles.container}>
                     {gridLayout.map(({ id, indexType, row, column }) => (
                         <View style={styles.item} key={id}>
-                            <Square indexType={indexType} onPress={() => handlePress(id, indexType, row, column)}/>
+                            <Square 
+                                indexType={indexType} 
+                                onPress={() => handlePress(id, indexType, row, column)}
+                                customStyle={highlightedSquares.includes(id) ? blinkStyle : {}}    
+                            />
                         </View>
                     ))}
                 </View>

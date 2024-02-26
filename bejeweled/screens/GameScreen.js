@@ -1,6 +1,8 @@
 import  React from 'react';
 import { View, Text, Button, StyleSheet, Dimensions, Image, ImageBackground, Animated } from 'react-native';
 import GameGrid from "../components/GameGrid";
+import ProgressBar from '../components/ProgressBar';
+
 
 
 const imgBackground = require("../assets/CloudsBackground.png")
@@ -11,6 +13,7 @@ function GameScreen() {
     return (
        <ImageBackground source={require("../assets/CloudsBackground.png")} style={styles.backGroundImage}>
             <GameGrid/>
+            {/* <ProgressBar/> */}
        </ImageBackground>
     )
 }
