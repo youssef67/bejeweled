@@ -1,6 +1,8 @@
-import  React from 'react';
+import React from 'react';
 import { View, Text, Button, StyleSheet, Dimensions, Image, ImageBackground, Animated } from 'react-native';
 import GameGrid from "../components/GameGrid";
+import ProgressBar from '../components/ProgressBar';
+import { PointsProvider } from "../context/PointsContext";
 
 
 const imgBackground = require("../assets/CloudsBackground.png")
@@ -9,9 +11,12 @@ function GameScreen() {
 
 
     return (
-       <ImageBackground source={require("../assets/CloudsBackground.png")} style={styles.backGroundImage}>
-            <GameGrid/>
-       </ImageBackground>
+        <PointsProvider>
+            <ImageBackground source={require("../assets/CloudsBackground.png")} style={styles.backGroundImage}>
+                <GameGrid />
+                <ProgressBar />
+            </ImageBackground>
+        </PointsProvider>
     )
 }
 
@@ -27,7 +32,7 @@ const styles = StyleSheet.create({
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-      }
+    }
 })
 
 export default GameScreen

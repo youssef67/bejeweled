@@ -1,16 +1,14 @@
 import { View, StyleSheet, Text, Button, Alert } from 'react-native'
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
+import { createContext } from 'react';
+import {PointsContext} from '../context/PointsContext';
 
 function ProgressBar() {
-    const [points, setPoints] = useState(0)
+    const {points, setPoints} = useContext(PointsContext)
     const [score, setScore] = useState(0)
     const [progressScore, setProgressScore] = useState(50)
     const [maxScore, setMaxScore] = useState(100)
     const [level, setLevel] = useState(1)
-
-    const handlePoints = () => {
-        setPoints(points + 12 * level)
-    }
 
     useEffect(() => {
         let timer = setInterval(() => {
@@ -49,16 +47,14 @@ function ProgressBar() {
 
 
     return (
-        <View style={styles.container}>
+        <>
             <Text>Score: {score} / niveau : {level}</Text>
             <View style={styles.bar}>
                 <Text style={{ position: 'absolute', zIndex: 1, right: '50%' }}>{progressScore} / {maxScore}</Text>
                 <View style={[styles.progress, { width: `${progressScore / maxScore * 100}%` }]}>
-
                 </View>
             </View>
-            <Button title="Incrementer" onPress={handlePoints} />
-        </View >
+        </>
     );
 }
 
@@ -70,7 +66,7 @@ const styles = StyleSheet.create({
     },
     bar: {
         height: 30,
-        backgroundColor: 'green',
+        backgroundColor: 'lightblue',
         borderRadius: 10,
         width: '80%',
         display: 'flex',
@@ -81,7 +77,7 @@ const styles = StyleSheet.create({
     },
     progress: {
         height: '80%',
-        backgroundColor: 'red',
+        backgroundColor: 'blue',
         borderRadius: 5,
 
     }

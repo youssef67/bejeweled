@@ -1,10 +1,11 @@
-import  React, {useEffect, useState} from 'react';
+import  React, {useEffect, useState, useContext} from 'react';
 import { View, StyleSheet, Alert, Text, Button} from 'react-native';
 import { testEnchainementDeTroisPlusTroisSurColonne, 
         testEnchainementDeTroisEtTroisSurColonneEtLignePlusTrois, 
         testEnchainementDeCinqEtTroisSurColonneEtLignePlusCinqPlusTrois } 
         from "../core/var_test";
 import Square from './Square';
+import { PointsContext} from '../context/PointsContext';
 
 function GameGrid() {
 
@@ -13,8 +14,8 @@ function GameGrid() {
     const [firstClick, setFirstClick] = useState(null)
     const [secondClick, setSecondClick] = useState(null)
     const [tries, setTries] = useState(5)
-    const [score, setScore] = useState(0)
-
+    const {points, setPoints} = useContext(PointsContext);
+    
     useEffect(() => {
         if(!firstRender)
             createFirstRenderGridLayout()
@@ -97,7 +98,7 @@ function GameGrid() {
             setTimeout(() => {
                 // Lancement de la vérification dans la grille
                 let scoreAfterMove = checkGridLayoutAfterMove(tempGridLayout)
-                setScore(prev => prev + scoreAfterMove)
+                setPoints(prev => prev + scoreAfterMove)
 
                 //MAJ visuelle 
                 setGridLayout(tempGridLayout)
@@ -204,7 +205,7 @@ function GameGrid() {
             // Après MAJ, on relance une recherche de combinaison 
             // Si TRUE, on re call la fonction
             if (additionalScore > 0) {
-                setScore(prev => prev + additionalScore)
+                setPoints(prev => prev + additionalScore)
                 additionalCheck()
             } 
                 
@@ -333,9 +334,9 @@ function GameGrid() {
             <View>
             <Button
                 title="reset le score"
-                onPress={() => setScore(0)}
+                onPress={() => setPoints(0)}
             />
-                <Text>score effectué sur ce tour : {score}</Text>
+                <Text>score effectué sur ce tour : {points}</Text>
             </View>
             <View>
                 <Text>essais : {tries}</Text>
