@@ -8,9 +8,13 @@ function ProgressBar() {
     const [progressScore, setProgressScore] = useState(50)
     const [maxScore, setMaxScore] = useState(100)
     const [level, setLevel] = useState(1)
+    const [isPaused, setIsPaused] = useState(false);
 
     useEffect(() => {
-        let timer = setInterval(() => {
+        let timer 
+        
+        if (!isPaused) {
+        timer = setInterval(() => {
             setProgressScore(progressScore => {
                 if (progressScore - 3 * level <= 0) {
                     clearInterval(timer)
@@ -20,10 +24,11 @@ function ProgressBar() {
                 return progressScore - 3 * level
             })
         }, 1000)
+    }
         return () => {
             clearInterval(timer)
         }
-    }, [level])
+    }, [level, isPaused])
 
     useEffect(() => {
         setProgressScore(progressScore => progressScore + points * level)
@@ -41,6 +46,16 @@ function ProgressBar() {
     }
         , [points])
 
+    const pauseHandler = () => {
+        setIsPaused(true)
+        Alert.alert('Pause', 'Voulez-vous continuer ?', [
+            { text: 'Oui', onPress: () => setIsPaused(false) },
+        ],
+        { containerStyle: { width: '80%' } }
+        )
+
+    }
+
 
     return (
         <>
@@ -50,6 +65,7 @@ function ProgressBar() {
                 <View style={[styles.progress, { width: `${progressScore / maxScore * 100}%` }]}>
                 </View>
             </View>
+            <Button title="Pause" onPress={pauseHandler}/>
         </>
     );
 }
