@@ -1,6 +1,5 @@
 import { View, StyleSheet, Text, Button, Alert } from 'react-native'
 import { useState, useEffect, useContext } from 'react';
-import { createContext } from 'react';
 import {PointsContext} from '../context/PointsContext';
 
 function ProgressBar() {
@@ -28,8 +27,8 @@ function ProgressBar() {
     }, [level])
 
     useEffect(() => {
-        setProgressScore(progressScore => progressScore + points)
-        setScore(score + points)
+        setProgressScore(progressScore => progressScore + points * level)
+        setScore(score + points * level)
 
         console.log('render')
 
