@@ -9,7 +9,7 @@ import { testEnchainementDeTroisPlusTroisSurColonne,
 import Square from './Square';
 import { PointsContext} from '../context/PointsContext';
 
-function GameGrid() {
+function GameGrid({isPaused}) {
 
     const [gridLayout, setGridLayout] = useState([])
 
