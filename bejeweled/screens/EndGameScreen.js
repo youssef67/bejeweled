@@ -12,6 +12,13 @@ function EndGameScreen({ route, navigation }) {
     const { score } = route.params
 
     useEffect(() => {
+
+        // Pour eviter le retour au jeu par la navigation native
+        // A enlever si problème pour rejouer
+        navigation.addListener('beforeRemove', (e) => {
+            e.preventDefault();
+        });
+
         if (score > currentUser.highscore) {
             fetch('http://209.38.204.73/users/' + currentUser.id, {
                 method: 'PUT',
@@ -60,7 +67,7 @@ function EndGameScreen({ route, navigation }) {
                     console.error("Erreur lors de la récupération du classement", error);
                 });
         }
-    })
+    }, [])
 
     if (loading) {
         return (

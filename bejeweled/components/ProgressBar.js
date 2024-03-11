@@ -1,5 +1,5 @@
 import { View, StyleSheet, Text } from 'react-native'
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useRef } from 'react';
 import { PointsContext } from '../context/PointsContext';
 import { useNavigation } from '@react-navigation/native';
 
@@ -12,6 +12,9 @@ function ProgressBar({ isPaused }) {
     const [maxScore, setMaxScore] = useState(100)
     const [level, setLevel] = useState(1)
     const [gameOver, setGameOver] = useState(false)
+    const renderCount = useRef(0);
+    renderCount.current = renderCount.current + 1;
+    console.log('render ' + renderCount.current)
 
     useEffect(() => {
         let timer
@@ -21,6 +24,9 @@ function ProgressBar({ isPaused }) {
                 setProgressScore(progressScore => {
                     if (progressScore - 3 * level <= 0) {
                         setGameOver(true);
+                        console.log('game over')
+                        clearInterval(timer)
+                        return 0
                     }
                     return progressScore - 3 * level
                 })
@@ -34,11 +40,13 @@ function ProgressBar({ isPaused }) {
     useEffect(() => {
         setProgressScore(progressScore => progressScore + points * level)
         setScore(score + points * level)
+        console.log(points)
 
         if (progressScore >= maxScore) {
             setMaxScore(maxScore * 2)
             setProgressScore(maxScore + (progressScore - maxScore))
             setLevel(level + 1)
+            
         }
         return () => {
             setPoints(0)
