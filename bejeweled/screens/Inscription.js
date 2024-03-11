@@ -1,9 +1,9 @@
 import CustomButton from "../components/CustomButton";
 import CustomInput from "../components/CustomInput";
-import { StyleSheet, View, Alert, Text } from "react-native";
+import { StyleSheet, View, Alert, Text, TouchableOpacity } from "react-native";
 import { useState } from "react";
 
-function Inscription() {
+function Inscription({ navigation }) {
 
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -44,8 +44,13 @@ function Inscription() {
             .then(response => response.json())
             .then(data => {
                 console.log(data)
-                if(!data.success) return Alert.alert(data.message)
-                
+                if(!data.success) {return Alert.alert(data.message)}
+                Alert.alert('Inscription réussie')
+                setEmail('');
+                setPassword('');
+                setPassword2('');
+                setNom('');
+                setPrenom('');      
             })
     }
 
@@ -60,7 +65,8 @@ function Inscription() {
                 <CustomInput text="Mot de Passe" onChangeText={text => setPassword(text)} value={password} secureTextEntry />
                 <CustomInput text="Confirmez le mot de passe" onChangeText={text => setPassword2(text)} value={password2} secureTextEntry />
             </View>
-            <CustomButton text="Connexion" onPress={handleInscription} />
+            <CustomButton text="S'inscrire" onPress={handleInscription} />
+            <TouchableOpacity onPress={() => navigation.navigate('Connexion')} ><Text>Connexion</Text></TouchableOpacity>
         </View>
 
     );

@@ -1,9 +1,10 @@
 import React from 'react';
 import { View, Text, Button, StyleSheet, Dimensions, Image, ImageBackground, Animated, Alert } from 'react-native';
 import GameGrid from "../components/GameGrid";
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import ProgressBar from '../components/ProgressBar';
 import { PointsProvider } from "../context/PointsContext";
+import { CurrentUserContext } from '../context/CurrentUserContext';
 
 
 const imgBackground = require("../assets/CloudsBackground.png")
@@ -11,6 +12,7 @@ const imgBackground = require("../assets/CloudsBackground.png")
 function GameScreen() {
 
     const [isPaused, setIsPaused] = useState(false)
+    const { currentUser, setCurrentUser } = useContext(CurrentUserContext)
 
     const handlePause = () => {
         setIsPaused(!isPaused)

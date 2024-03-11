@@ -1,12 +1,14 @@
 import CustomButton from "../components/CustomButton";
 import CustomInput from "../components/CustomInput";
-import { StyleSheet, View, Alert, Text } from "react-native";
-import { useState } from "react";
+import { StyleSheet, View, Alert, Text, TouchableOpacity } from "react-native";
+import { useState, useContext } from "react";
+import { CurrentUserContext } from "../context/CurrentUserContext";
 
-function Connexion() {
+function Connexion({ navigation }) {
 
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const { setCurrentUser } = useContext(CurrentUserContext)
 
     const handleConnexion = () => {
         if (email === '' || password === '') {
@@ -24,7 +26,12 @@ function Connexion() {
             })
         })
             .then(response => response.json())
-            .then(data => console.log(data))
+            .then(data => {
+                if (!data.success) { return Alert.alert(data.message) }
+                setCurrentUser({ id: data.id, highscore: data.highscore });
+                navigation.navigate('GameScreen')
+            }
+            )
     }
 
 
@@ -38,6 +45,7 @@ function Connexion() {
                 <CustomInput text="Mot de Passe" onChangeText={text => setPassword(text)} value={password} secureTextEntry />
             </View>
             <CustomButton text="Connexion" onPress={handleConnexion} />
+            <TouchableOpacity onPress={() => navigation.navigate('Connexion')} ><Text>Inscription</Text></TouchableOpacity>
         </View>
     );
 }
