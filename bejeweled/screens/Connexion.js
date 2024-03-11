@@ -45,7 +45,7 @@ function Connexion({ navigation }) {
                 <CustomInput text="Mot de Passe" onChangeText={text => setPassword(text)} value={password} secureTextEntry />
             </View>
             <CustomButton text="Connexion" onPress={handleConnexion} />
-            <TouchableOpacity onPress={() => navigation.navigate('Connexion')} ><Text>Inscription</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('Inscription')} ><Text>Inscription</Text></TouchableOpacity>
         </View>
     );
 }

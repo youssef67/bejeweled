@@ -6,7 +6,6 @@ import ProgressBar from '../components/ProgressBar';
 import { PointsProvider } from "../context/PointsContext";
 import { CurrentUserContext } from '../context/CurrentUserContext';
 
-
 const imgBackground = require("../assets/CloudsBackground.png")
 
 function GameScreen() {
@@ -23,7 +22,7 @@ function GameScreen() {
             <ImageBackground source={require("../assets/CloudsBackground.png")} style={styles.backGroundImage}>
                 <Button title={!isPaused ? "Pause" : "Redemarrer"} onPress={handlePause} />
                 <GameGrid isPaused = {isPaused}/>
-                <ProgressBar isPaused={isPaused} />
+                <ProgressBar isPaused={isPaused}/>
             </ImageBackground>
         </PointsProvider>
     )

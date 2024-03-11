@@ -1,13 +1,17 @@
-import { View, StyleSheet, Text, Button, Alert } from 'react-native'
+import { View, StyleSheet, Text } from 'react-native'
 import { useState, useEffect, useContext } from 'react';
 import { PointsContext } from '../context/PointsContext';
+import { useNavigation } from '@react-navigation/native';
 
 function ProgressBar({ isPaused }) {
+
+    const navigation = useNavigation();
     const { points, setPoints } = useContext(PointsContext)
     const [score, setScore] = useState(0)
     const [progressScore, setProgressScore] = useState(50)
     const [maxScore, setMaxScore] = useState(100)
     const [level, setLevel] = useState(1)
+    const [gameOver, setGameOver] = useState(false)
 
     useEffect(() => {
         let timer
@@ -16,9 +20,7 @@ function ProgressBar({ isPaused }) {
             timer = setInterval(() => {
                 setProgressScore(progressScore => {
                     if (progressScore - 3 * level <= 0) {
-                        clearInterval(timer)
-                        Alert.alert('Game Over', 'Vous avez perdu')
-                        return 0
+                        setGameOver(true);
                     }
                     return progressScore - 3 * level
                 })
@@ -27,7 +29,7 @@ function ProgressBar({ isPaused }) {
         return () => {
             clearInterval(timer)
         }
-    }, [level, { isPaused }])
+    }, [level, isPaused ])
 
     useEffect(() => {
         setProgressScore(progressScore => progressScore + points * level)
@@ -39,11 +41,16 @@ function ProgressBar({ isPaused }) {
             setLevel(level + 1)
         }
         return () => {
-            console.log('cleanup')
             setPoints(0)
         }
     }
         , [points])
+
+        useEffect(() => {
+            if (gameOver) { 
+                navigation.navigate('EndGameScreen', { score: score }); 
+            }
+        }, [gameOver]);
 
     return (
         <>
