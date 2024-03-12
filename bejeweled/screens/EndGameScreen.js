@@ -5,19 +5,14 @@ import { CurrentUserContext } from '../context/CurrentUserContext';
 
 function EndGameScreen({ route, navigation }) {
 
-    const { currentUser } = useContext(CurrentUserContext)
+    const { currentUser, setCurrentUser } = useContext(CurrentUserContext)
     const [classement, setClassement] = useState(null)
     const [loading, setLoading] = useState(true)
-    
+
 
     const { score } = route.params
 
     useEffect(() => {
-
-        // Pour eviter le retour au jeu par la navigation native
-        const removeNavigationListener = navigation.addListener('beforeRemove', (e) => {
-            e.preventDefault();
-        });
 
         if (score > currentUser.highscore) {
             fetch('http://209.38.204.73/users/' + currentUser.id, {
@@ -43,9 +38,9 @@ function EndGameScreen({ route, navigation }) {
                 })
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data)
                     setClassement(data)
                     setLoading(false);
+                    setCurrentUser({ ...currentUser, highscore: score })
                 })
                 .catch(error => {
                     console.error("Erreur lors de la récupération du classement ou de la mise à jour de l'highscore", error);
@@ -59,17 +54,36 @@ function EndGameScreen({ route, navigation }) {
             })
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data)
                     setClassement(data)
                     setLoading(false);
+                    setCurrentUser({ ...currentUser, highscore: score })
                 })
                 .catch(error => {
                     console.error("Erreur lors de la récupération du classement", error);
                 });
         }
-// le listener est enlever quand le composant est démonté
-        return removeNavigationListener();
     }, [])
+
+    useEffect(() => {
+        fetch('http://209.38.204.73/games', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                score: score,
+                user: currentUser.id
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+            })
+            .catch(error => {
+                console.error("Erreur lors de l'envoi de la partie", error);
+            });
+    }
+        , [])
 
     if (loading) {
         return (
