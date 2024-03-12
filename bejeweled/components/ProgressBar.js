@@ -2,9 +2,11 @@ import { View, StyleSheet, Text } from 'react-native'
 import { useState, useEffect, useContext, useRef } from 'react';
 import { PointsContext } from '../context/PointsContext';
 import { useNavigation } from '@react-navigation/native';
+import { useIsFocused } from '@react-navigation/native';
 
 function ProgressBar({ isPaused }) {
 
+    const isFocused = useIsFocused();
     const navigation = useNavigation();
     const { points, setPoints } = useContext(PointsContext)
     const [score, setScore] = useState(0)
@@ -35,7 +37,19 @@ function ProgressBar({ isPaused }) {
         return () => {
             clearInterval(timer)
         }
-    }, [level, isPaused ])
+    }, [level, isPaused, gameOver ])
+
+    useEffect(() => {
+        if (isFocused) {
+            // Réinitialisez les variables ici
+            setGameOver(false);
+            setScore(0);
+            setProgressScore(50);
+            setMaxScore(100);
+            setLevel(1);
+            
+        }
+    }, [isFocused]);
 
     useEffect(() => {
         setProgressScore(progressScore => progressScore + points * level)

@@ -8,14 +8,14 @@ function EndGameScreen({ route, navigation }) {
     const { currentUser } = useContext(CurrentUserContext)
     const [classement, setClassement] = useState(null)
     const [loading, setLoading] = useState(true)
+    
 
     const { score } = route.params
 
     useEffect(() => {
 
         // Pour eviter le retour au jeu par la navigation native
-        // A enlever si problème pour rejouer
-        navigation.addListener('beforeRemove', (e) => {
+        const removeNavigationListener = navigation.addListener('beforeRemove', (e) => {
             e.preventDefault();
         });
 
@@ -67,6 +67,8 @@ function EndGameScreen({ route, navigation }) {
                     console.error("Erreur lors de la récupération du classement", error);
                 });
         }
+// le listener est enlever quand le composant est démonté
+        return removeNavigationListener();
     }, [])
 
     if (loading) {
@@ -77,6 +79,10 @@ function EndGameScreen({ route, navigation }) {
         )
     }
 
+    const replay = () => {
+        navigation.navigate('GameScreen')
+    }
+
     return (
         <View style={styles.center}>
             <Text>Classement</Text>
@@ -84,6 +90,7 @@ function EndGameScreen({ route, navigation }) {
                 <Text key={item.id}>{index + 1} {item.name} {item.highscore}</Text>
             ))}
             <Text>Score: {score}</Text>
+            <Button title='Rejouer' onPress={replay} />
         </View>
     );
 }
