@@ -56,7 +56,6 @@ function EndGameScreen({ route, navigation }) {
                 .then(data => {
                     setClassement(data)
                     setLoading(false);
-                    setCurrentUser({ ...currentUser, highscore: score })
                 })
                 .catch(error => {
                     console.error("Erreur lors de la récupération du classement", error);
