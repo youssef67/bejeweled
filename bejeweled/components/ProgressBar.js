@@ -37,7 +37,7 @@ function ProgressBar({ isPaused }) {
         return () => {
             clearInterval(timer)
         }
-    }, [level, isPaused, gameOver ])
+    }, [level, isPaused, gameOver])
 
     useEffect(() => {
         if (isFocused) {
@@ -47,7 +47,7 @@ function ProgressBar({ isPaused }) {
             setProgressScore(50);
             setMaxScore(100);
             setLevel(1);
-            
+
         }
     }, [isFocused]);
 
@@ -57,10 +57,11 @@ function ProgressBar({ isPaused }) {
         console.log(points)
 
         if (progressScore >= maxScore) {
+
             setMaxScore(maxScore * 2)
             setProgressScore(maxScore + (progressScore - maxScore))
             setLevel(level + 1)
-            
+
         }
         return () => {
             setPoints(0)
@@ -68,18 +69,18 @@ function ProgressBar({ isPaused }) {
     }
         , [points])
 
-        useEffect(() => {
-            if (gameOver) { 
-                navigation.navigate('EndGameScreen', { score: score }); 
-            }
-        }, [gameOver]);
+    useEffect(() => {
+        if (gameOver) {
+            navigation.navigate('EndGameScreen', { score: score });
+        }
+    }, [gameOver]);
 
     return (
         <>
             <Text>Score: {score} / niveau : {level}</Text>
             <View style={styles.bar}>
                 <Text style={{ position: 'absolute', zIndex: 1, right: '50%' }}>{progressScore} / {maxScore}</Text>
-                <View style={[styles.progress, { width: `${progressScore / maxScore * 100}%` }]}>
+                <View style={[styles.progress, { width: `${progressScore / maxScore * 100 > 100 ? 100 : progressScore / maxScore * 100}%` }]}>
                 </View>
             </View>
         </>
