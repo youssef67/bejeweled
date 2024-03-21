@@ -9,6 +9,7 @@ import EndGameScreen from './screens/EndGameScreen';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import GameScreen from "./screens/GameScreen";
+import WaitingScreen from "./screens/WaitingScreen";
 import { CurrentUserProvider } from './context/CurrentUserContext';
 
 const Stack = createNativeStackNavigator();
@@ -22,6 +23,7 @@ export default function App() {
         <Stack.Navigator>
           <Stack.Screen name="Connexion" component={Connexion} options={{ headerShown: false }} />
           <Stack.Screen name="Inscription" component={Inscription} options={{ headerShown: false }} />
+          <Stack.Screen name="WaitingScreen" component={WaitingScreen} options={{ headerShown: false }} />
           <Stack.Screen name="GameScreen" component={GameScreen} options={{ headerShown: false }} />
           <Stack.Screen name="EndGameScreen" component={EndGameScreen} options={{ headerShown: false }} />
         </Stack.Navigator>

@@ -6,8 +6,8 @@ import { CurrentUserContext } from "../context/CurrentUserContext";
 
 function Connexion({ navigation }) {
 
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
+    const [email, setEmail] = useState('you.moudni@gmail.com')
+    const [password, setPassword] = useState('1234')
     const { setCurrentUser } = useContext(CurrentUserContext)
 
     const handleConnexion = () => {
@@ -28,8 +28,8 @@ function Connexion({ navigation }) {
             .then(response => response.json())
             .then(data => {
                 if (!data.success) { return Alert.alert(data.message) }
-                setCurrentUser({ id: data.id, highscore: data.highscore });
-                navigation.navigate('GameScreen')
+                setCurrentUser({ id: data.id, highscore: data.highscore, name : data.name, surname : data.surname});
+                navigation.navigate('WaitingScreen')
             }
             )
     }

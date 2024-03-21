@@ -1,4 +1,4 @@
-import  React, {useEffect, useState, useContext} from 'react';
+import  React, {useEffect, useState} from 'react';
 import { View, StyleSheet, Alert, Text, Button} from 'react-native';
 import { testEnchainementDeTroisPlusTroisSurColonne, 
         testEnchainementDeTroisEtTroisSurColonneEtLignePlusTrois, 
@@ -7,26 +7,20 @@ import { testEnchainementDeTroisPlusTroisSurColonne,
         testHintSansResultat } 
         from "../core/var_test";
 import Square from './Square';
-import { PointsContext} from '../context/PointsContext';
 
-function GameGrid({isPaused}) {
+function GameGrid() {
 
     const [gridLayout, setGridLayout] = useState([])
 
-    const [blinkStyle, setBlinkStyle] = useState({})
-    const [opacityStyle, setOpacityStyle] = useState({})
-    const [isDisabled, setIsDisabled] = useState(null)
-    const [highlightedSquares, setHighlightedSquares] = useState([])
+    const [blinkStyle, setBlinkStyle] = useState({});
+    const [highlightedSquares, setHighlightedSquares] = useState([]);
 
     const [firstRender, setFirstRender] = useState(false)
     const [firstClick, setFirstClick] = useState(null)
     const [secondClick, setSecondClick] = useState(null)
     const [tries, setTries] = useState(5)
-    const {points, setPoints} = useContext(PointsContext);
+    const [score, setScore] = useState(0)
 
-
-    console.log(isPaused)
-    
     useEffect(() => {
         if(!firstRender)
             createFirstRenderGridLayout()
@@ -35,15 +29,6 @@ function GameGrid({isPaused}) {
             swipeImage()
 
     }, [secondClick])
-
-
-    useEffect(() => {
-        if (isPaused) {
-            setIsDisabled(true)
-        } else {
-            setIsDisabled(false)
-        }
-    }, [isPaused])
 
 
     useEffect(() => {
@@ -93,8 +78,8 @@ function GameGrid({isPaused}) {
             //*** DEBUT VARIABLES DE TEST ***/
             // setGridLayout(testEnchainementDeTroisPlusTroisSurColonne)
             // setGridLayout(testEnchainementDeTroisEtTroisSurColonneEtLignePlusTrois)
-            setGridLayout(testEnchainementDeCinqEtTroisSurColonneEtLignePlusCinqPlusTrois)
-            // setGridLayout(testHintSansResultat)
+            // setGridLayout(testEnchainementDeCinqEtTroisSurColonneEtLignePlusCinqPlusTrois)
+            setGridLayout(testHintSansResultat)
             //*** FIN VARIABLES DE TEST ***/
 
             // setGridLayout(tempGridLayout)
@@ -145,7 +130,7 @@ function GameGrid({isPaused}) {
             setTimeout(() => {
                 // Lancement de la vérification dans la grille
                 let scoreAfterMove = checkGridLayoutAfterMove(tempGridLayout)
-                setPoints(prev => prev + scoreAfterMove)
+                setScore(prev => prev + scoreAfterMove)
 
                 //MAJ visuelle 
                 setGridLayout(tempGridLayout)
@@ -252,7 +237,7 @@ function GameGrid({isPaused}) {
             // Après MAJ, on relance une recherche de combinaison 
             // Si TRUE, on re call la fonction
             if (additionalScore > 0) {
-                setPoints(prev => prev + additionalScore)
+                setScore(prev => prev + additionalScore)
                 additionalCheck()
             } 
                 
@@ -422,13 +407,13 @@ function GameGrid({isPaused}) {
                 onPress={() => hint()}
             />
             </View>
-            {/* <View> */}
-            {/* <Button
+            <View>
+            <Button
                 title="reset le score"
-                onPress={() => setPoints(0)}
-            /> */}
-            {/* <Text>score effectué sur ce tour : {points}</Text> */}
-            {/* </View> */}
+                onPress={() => setScore(0)}
+            />
+                <Text>score effectué sur ce tour : {score}</Text>
+            </View>
             <View>
                 <Text>essais : {tries}</Text>
             </View>
@@ -441,8 +426,7 @@ function GameGrid({isPaused}) {
                             <Square 
                                 indexType={indexType} 
                                 onPress={() => handlePress(id, indexType, row, column)}
-                                customStyle={highlightedSquares.includes(id) ? blinkStyle : {}}
-                                isDisabled={isDisabled}     
+                                customStyle={highlightedSquares.includes(id) ? blinkStyle : {}}    
                             />
                         </View>
                     ))}
