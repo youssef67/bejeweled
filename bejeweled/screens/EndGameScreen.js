@@ -8,6 +8,7 @@ function EndGameScreen({ route, navigation }) {
     const { currentUser, setCurrentUser } = useContext(CurrentUserContext)
     const [classement, setClassement] = useState(null)
     const [loading, setLoading] = useState(true)
+    const [newHighscore, setNewHighscore] = useState(false)
 
 
     const { score } = route.params
@@ -15,6 +16,7 @@ function EndGameScreen({ route, navigation }) {
     useEffect(() => {
 
         if (score > currentUser.highscore) {
+            setNewHighscore(true)
             fetch('http://209.38.204.73/users/' + currentUser.id, {
                 method: 'PUT',
                 headers: {
@@ -98,13 +100,24 @@ function EndGameScreen({ route, navigation }) {
 
     return (
         <View style={styles.center}>
-            <Text>Classement</Text>
+            <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Classement</Text>
+            <Text>Votre score : {score}</Text>
+            {newHighscore && <Text>Nouveau record !!!</Text>}
+            <View style={styles.header}>
+                <Text style={styles.headerText}>Classement</Text>
+                <Text style={styles.headerText}>Nom</Text>
+                <Text style={styles.headerText}>Score</Text>
+            </View>
             {classement.map((item, index) => (
-                <Text key={item.id}>{index + 1} {item.name} {item.highscore}</Text>
+                <View style={styles.row} key={item.id}>
+                    <Text style={styles.cell}>{index + 1}</Text>
+                    <Text style={styles.cell}>{item.name}</Text>
+                    <Text style={styles.cell}>{item.highscore}</Text>
+                </View>
             ))}
-            <Text>Score: {score}</Text>
             <Button title='Rejouer' onPress={replay} />
         </View>
+
     );
 }
 
@@ -114,6 +127,30 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         gap: 20
+
+    },
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 5,
+        borderBottomWidth: 1,
+        borderBottomColor: '#ccc',
+    },
+    headerText: {
+        fontWeight: 'bold',
+        fontSize: 16,
+        flex: 1,
+        textAlign: 'center'
+    },
+    row: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 5,
+    },
+    cell: {
+        flex: 1,
+        fontSize: 16,
+        textAlign: 'center'
     }
 })
 
