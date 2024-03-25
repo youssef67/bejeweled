@@ -3,12 +3,15 @@ import { useState, useEffect, useContext, useRef } from 'react';
 import { PointsContext } from '../context/PointsContext';
 import { useNavigation } from '@react-navigation/native';
 import { useIsFocused } from '@react-navigation/native';
+import { CurrentUserContext } from '../context/CurrentUserContext';
+
 
 function ProgressBar({ isPaused }) {
 
     const isFocused = useIsFocused();
     const navigation = useNavigation();
     const { points, setPoints } = useContext(PointsContext)
+    const { currentUser, setCurrentUser } = useContext(CurrentUserContext)
     const [score, setScore] = useState(0)
     const [progressScore, setProgressScore] = useState(50)
     const [maxScore, setMaxScore] = useState(100)
@@ -16,7 +19,6 @@ function ProgressBar({ isPaused }) {
     const [gameOver, setGameOver] = useState(false)
     const renderCount = useRef(0);
     renderCount.current = renderCount.current + 1;
-    console.log('render ' + renderCount.current)
 
     useEffect(() => {
         let timer
@@ -26,7 +28,6 @@ function ProgressBar({ isPaused }) {
                 setProgressScore(progressScore => {
                     if (progressScore - 3 * level <= 0) {
                         setGameOver(true);
-                        console.log('game over')
                         clearInterval(timer)
                         return 0
                     }
@@ -54,7 +55,11 @@ function ProgressBar({ isPaused }) {
     useEffect(() => {
         setProgressScore(progressScore => progressScore + points * level)
         setScore(score + points * level)
-        console.log(points)
+
+        setCurrentUser(prevCurrent => ({
+            ...prevCurrent,
+            score : score
+        }))
 
         if (progressScore >= maxScore) {
             setMaxScore(maxScore * 2)
@@ -65,14 +70,13 @@ function ProgressBar({ isPaused }) {
         return () => {
             setPoints(0)
         }
-    }
-        , [points])
+    }, [points])
 
-        useEffect(() => {
-            if (gameOver) { 
-                navigation.navigate('EndGameScreen', { score: score }); 
-            }
-        }, [gameOver]);
+    useEffect(() => {
+        if (gameOver) {
+            navigation.navigate('EndGameScreen', { score: score }); 
+        }
+    }, [gameOver]);
 
     return (
         <>

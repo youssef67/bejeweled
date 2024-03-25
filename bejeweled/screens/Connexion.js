@@ -28,7 +28,7 @@ function Connexion({ navigation }) {
             .then(response => response.json())
             .then(data => {
                 if (!data.success) { return Alert.alert(data.message) }
-                setCurrentUser({ id: data.id, highscore: data.highscore, name : data.name, surname : data.surname});
+                setCurrentUser({ id: data.id, highscore: data.highscore, name : data.name, surname : data.surname, score : 0});
                 navigation.navigate('WaitingScreen')
             }
             )

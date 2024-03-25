@@ -4,10 +4,10 @@ import { getRequireImage } from "../core/utils";
 
 
 
-function Square({indexType, onPress, customStyle, opacityStyle, isDisabled}) {
+function Square({indexType, onPress, customStyle, isDisabled, errorMove}) {
 
     return (
-        <TouchableOpacity style={[styles.square, customStyle, opacityStyle]} disabled={isDisabled} onPress={onPress}>
+        <TouchableOpacity style={[styles.square, customStyle, errorMove]} disabled={isDisabled} onPress={onPress}>
           {isDisabled ? null : <Image source={getRequireImage(indexType)} />}
         </TouchableOpacity >
     )

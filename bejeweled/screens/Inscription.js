@@ -43,7 +43,6 @@ function Inscription({ navigation }) {
         })
             .then(response => response.json())
             .then(data => {
-                console.log(data)
                 if(!data.success) {return Alert.alert(data.message)}
                 Alert.alert('Inscription réussie')
                 setEmail('');

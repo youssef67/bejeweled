@@ -1,20 +1,19 @@
 import React from 'react';
 import { View, Text, Button, StyleSheet, Dimensions, Image, ImageBackground, Animated, Alert } from 'react-native';
-import { useState, useContext, useEffect } from 'react';
+import { useContext } from 'react';
 import { CurrentUserContext } from '../context/CurrentUserContext';
 
-function WaitingScreen({ route, navigation }) {
+function WaitingScreen({ navigation }) {
 
     const { currentUser, setCurrentUser } = useContext(CurrentUserContext)
     
-    console.log(currentUser)
     const replay = () => {
         navigation.navigate('GameScreen')
     }
 
     return (
         <View style={styles.center}>
-            <Text>Welcome {currentUser.name} {currentUser.surname} !!!</Text>
+            <Text>Bienvenue {currentUser.name} {currentUser.surname} !!!</Text>
             <Button title='Jouer' onPress={replay} />
         </View>
     );

@@ -8,26 +8,34 @@ import { testEnchainementDeTroisPlusTroisSurColonne,
         from "../core/var_test";
 import Square from './Square';
 import { PointsContext} from '../context/PointsContext';
+import { useIsFocused } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
+import { CurrentUserContext } from '../context/CurrentUserContext';
+
+
 
 function GameGrid({isPaused}) {
 
-    const [gridLayout, setGridLayout] = useState([])
+    const isFocused = useIsFocused();
+    const navigation = useNavigation();
 
+
+    const [gridLayout, setGridLayout] = useState([])
     const [blinkStyle, setBlinkStyle] = useState({})
-    const [opacityStyle, setOpacityStyle] = useState({})
     const [isDisabled, setIsDisabled] = useState(null)
     const [highlightedSquares, setHighlightedSquares] = useState([])
+    const [errorSquare, setErrorSquare] = useState([])
+    const [errorStyle, setErrorStyle] = useState(null)
 
     const [firstRender, setFirstRender] = useState(false)
     const [firstClick, setFirstClick] = useState(null)
     const [secondClick, setSecondClick] = useState(null)
-    const [tries, setTries] = useState(5)
+    const [tries, setTries] = useState(2)
     const {points, setPoints} = useContext(PointsContext);
-
-
-    console.log(isPaused)
-    
+    const { currentUser, setCurrentUser } = useContext(CurrentUserContext)
+  
     useEffect(() => {
+        console.log("call createFirstRenderGridLayout")
         if(!firstRender)
             createFirstRenderGridLayout()
 
@@ -36,17 +44,27 @@ function GameGrid({isPaused}) {
 
     }, [secondClick])
 
-
     useEffect(() => {
-        if (isPaused) {
-            setIsDisabled(true)
-        } else {
-            setIsDisabled(false)
+        if (isFocused) {
+            console.log("isFocused")
+            // Réinitialisez les variables ici
+            setTries(2)
+            setCurrentUser(prevCurrent => ({
+                ...prevCurrent,
+                score : 0
+            }))
+
+            createFirstRenderGridLayout()
+
         }
-    }, [isPaused])
+    }, [isFocused])
 
 
     useEffect(() => {
+        if (isPaused) setIsDisabled(true)
+        else setIsDisabled(false)
+
+
         if (highlightedSquares.length > 0) {
             let blinkCount = 0;
             const interval = setInterval(() => {
@@ -68,7 +86,20 @@ function GameGrid({isPaused}) {
 
             return () => clearInterval(interval)
         }
-    }, [highlightedSquares])
+
+
+        if (errorSquare.length > 0) {
+            setErrorStyle(
+                {backgroundColor : "#dc143c"}
+            )
+
+            setTimeout(() => {
+                setErrorSquare([])
+                setErrorStyle({})
+            }, 500);
+        }
+        
+    }, [isPaused, highlightedSquares, errorSquare])
 
 
     // Création de la grille au démarrage
@@ -89,7 +120,7 @@ function GameGrid({isPaused}) {
         // Si au 1er rendu, presence de combinaisons - on relance la fonction
         if(getScoreFromGridLayout(tempGridLayout).scoreAllGridLayout > 0) createFirstRenderGridLayout()
         else {
-
+            console.log("tempGridLayout mise en place")
             //*** DEBUT VARIABLES DE TEST ***/
             // setGridLayout(testEnchainementDeTroisPlusTroisSurColonne)
             // setGridLayout(testEnchainementDeTroisEtTroisSurColonneEtLignePlusTrois)
@@ -186,7 +217,15 @@ function GameGrid({isPaused}) {
                 tempGridLayout[firstClick.id].indexType = firstClick.indexType
                 tempGridLayout[secondClick.id].indexType = secondClick.indexType
                 setTries(prev => prev - 1)
-                console.log("erreur, pas de score effectué")
+                let triesUpdate = tries - 1;
+
+                if (triesUpdate == 0) {
+                    navigation.navigate('EndGameScreen', { score: currentUser.score }); 
+                }else {
+                    setErrorSquare([firstClick.id, secondClick.id])
+                    console.log("erreur, pas de score effectué")
+                }
+                
             }
         } else {
             // Suppresion des doublons potentiels sur les Squares ayant générés un score
@@ -333,77 +372,84 @@ function GameGrid({isPaused}) {
 
     // Fonction permettant de mettre en evidence une combinaison
     function hint() {
+        setTries(prev => prev - 1)
+        let triesUpdate = tries - 1;
 
-        let tempGridLayout = gridLayout.map(e => Array.isArray(e) ? [...e] : e)
-        let allCombination = []
-        let combinationFound = false;
-               
-        // parcours l'ensemble des cases de la grille
-        for (let i = 0; i < tempGridLayout.length; i++) {
-
-            // Si pas de combinaison encore trouvé, on vérifie la case scopée
-            if (!combinationFound) {
-                let right, left, down, up
-                currentSquareId = tempGridLayout[i].id
-                let combination = []
+        if (triesUpdate == 0) {
+            navigation.navigate('EndGameScreen', { score: currentUser.score }); 
+        } else {
+            let tempGridLayout = gridLayout.map(e => Array.isArray(e) ? [...e] : e)
+            let allCombination = []
+            let combinationFound = false;
+                   
+            // parcours l'ensemble des cases de la grille
+            for (let i = 0; i < tempGridLayout.length; i++) {
     
-                // On récupére les cases adjacentes à la case en cours de vérification
-                down = tempGridLayout.filter(s => s.column == gridLayout[i].column && s.row == gridLayout[i].row + 1)[0] ?? null
-                up = tempGridLayout.filter(s => s.column == gridLayout[i].column && s.row == gridLayout[i].row - 1)[0] ?? null
-                right = tempGridLayout.filter(s => s.column == gridLayout[i].column + 1 && s.row == gridLayout[i].row)[0] ?? null
-                left = tempGridLayout.filter(s => s.column == gridLayout[i].column - 1 && s.row == gridLayout[i].row)[0] ?? null
+                // Si pas de combinaison encore trouvé, on vérifie la case scopée
+                if (!combinationFound) {
+                    let right, left, down, up
+                    currentSquareId = tempGridLayout[i].id
+                    let combination = []
+        
+                    // On récupére les cases adjacentes à la case en cours de vérification
+                    down = tempGridLayout.filter(s => s.column == gridLayout[i].column && s.row == gridLayout[i].row + 1)[0] ?? null
+                    up = tempGridLayout.filter(s => s.column == gridLayout[i].column && s.row == gridLayout[i].row - 1)[0] ?? null
+                    right = tempGridLayout.filter(s => s.column == gridLayout[i].column + 1 && s.row == gridLayout[i].row)[0] ?? null
+                    left = tempGridLayout.filter(s => s.column == gridLayout[i].column - 1 && s.row == gridLayout[i].row)[0] ?? null
+        
+                    // On filtre pour garder uniquement les cases valides
+                    let adjacentsSquares = [up, down, right, left].filter(e => e !== null)
     
-                // On filtre pour garder uniquement les cases valides
-                let adjacentsSquares = [up, down, right, left].filter(e => e !== null)
-
-                // loop sur les cases adjacentes
-                for (let j = 0; j < adjacentsSquares.length; j++) {
-    
-                    // Si case en cours de vérif est identique à la case adjacentes ---> PAS DE VERIFCATION
-                    // Si elle est deja une combinaison précedement vérifié ---> PAS DE VERIFCATION
-                    if (tempGridLayout[currentSquareId].indexType != adjacentsSquares[j].indexType && !containsArray(allCombination, [currentSquareId, adjacentsSquares[j].id])) {
-    
-                        // On récupére le type d'images des 2 cases
-                        let indexTypeCurrentSquare = tempGridLayout[currentSquareId].indexType
-                        let indexTypeAdjacentSquare = adjacentsSquares[j].indexType
-    
-                        // Swipe d'image
-                        tempGridLayout[currentSquareId].indexType = indexTypeAdjacentSquare
-                        tempGridLayout[adjacentsSquares[j].id].indexType = indexTypeCurrentSquare
-    
-                        // Si le swipe génere un score - activation du CSS + set combinationFound à TRUE
-                        if (getScoreFromGridLayout(tempGridLayout).scoreAllGridLayout > 0) {
-                            setHighlightedSquares([currentSquareId, adjacentsSquares[j].id])
-                            combinationFound = true;
+                    // loop sur les cases adjacentes
+                    for (let j = 0; j < adjacentsSquares.length; j++) {
+        
+                        // Si case en cours de vérif est identique à la case adjacentes ---> PAS DE VERIFCATION
+                        // Si elle est deja une combinaison précedement vérifié ---> PAS DE VERIFCATION
+                        if (tempGridLayout[currentSquareId].indexType != adjacentsSquares[j].indexType && !containsArray(allCombination, [currentSquareId, adjacentsSquares[j].id])) {
+        
+                            // On récupére le type d'images des 2 cases
+                            let indexTypeCurrentSquare = tempGridLayout[currentSquareId].indexType
+                            let indexTypeAdjacentSquare = adjacentsSquares[j].indexType
+        
+                            // Swipe d'image
+                            tempGridLayout[currentSquareId].indexType = indexTypeAdjacentSquare
+                            tempGridLayout[adjacentsSquares[j].id].indexType = indexTypeCurrentSquare
+        
+                            // Si le swipe génere un score - activation du CSS + set combinationFound à TRUE
+                            if (getScoreFromGridLayout(tempGridLayout).scoreAllGridLayout > 0) {
+                                setHighlightedSquares([currentSquareId, adjacentsSquares[j].id])
+                                combinationFound = true;
+                            }
+        
+                            // Swipe d'image pour un retour à l'état initial de la grille
+                            tempGridLayout[currentSquareId].indexType = indexTypeCurrentSquare
+                            tempGridLayout[adjacentsSquares[j].id].indexType = indexTypeAdjacentSquare
+        
+                            // Si combination trouvé / stoppe la boucle
+                            if (combinationFound) break
                         }
-    
-                        // Swipe d'image pour un retour à l'état initial de la grille
-                        tempGridLayout[currentSquareId].indexType = indexTypeCurrentSquare
-                        tempGridLayout[adjacentsSquares[j].id].indexType = indexTypeAdjacentSquare
-    
-                        // Si combination trouvé / stoppe la boucle
-                        if (combinationFound) break
+        
+                        // Ajout des combinaisons vérifiées
+                        combination.push(currentSquareId, adjacentsSquares[j].id)
+                        allCombination.push([...combination])
+        
+                        let reverseCombination = [...combination].reverse()
+                        allCombination.push(reverseCombination)
+        
+                        combination = []
                     }
-    
-                    // Ajout des combinaisons vérifiées
-                    combination.push(currentSquareId, adjacentsSquares[j].id)
-                    allCombination.push([...combination])
-    
-                    let reverseCombination = [...combination].reverse()
-                    allCombination.push(reverseCombination)
-    
-                    combination = []
+                } else {
+                    break
                 }
-            } else {
-                break
             }
+    
+            // Si aucun combinaison, on relance la génération de la grille
+            if (!combinationFound) {
+                createFirstRenderGridLayout()
+                console.log("pas de combinaison")
+            } 
         }
-
-        // Si aucun combinaison, on relance la génération de la grille
-        if (!combinationFound) {
-            createFirstRenderGridLayout()
-            console.log("pas de combinaison")
-        } 
+        
     }
     
 
@@ -422,32 +468,22 @@ function GameGrid({isPaused}) {
                 onPress={() => hint()}
             />
             </View>
-            {/* <View> */}
-            {/* <Button
-                title="reset le score"
-                onPress={() => setPoints(0)}
-            /> */}
-            {/* <Text>score effectué sur ce tour : {points}</Text> */}
-            {/* </View> */}
             <View>
                 <Text>essais : {tries}</Text>
             </View>
-            {tries === 0 ? (
-                <Text>Désolé, vous avez perdu</Text>
-            ) : (
-                <View style={styles.container}>
-                    {gridLayout.map(({ id, indexType, row, column }) => (
-                        <View style={styles.item} key={id}>
-                            <Square 
-                                indexType={indexType} 
-                                onPress={() => handlePress(id, indexType, row, column)}
-                                customStyle={highlightedSquares.includes(id) ? blinkStyle : {}}
-                                isDisabled={isDisabled}     
-                            />
-                        </View>
-                    ))}
-                </View>
-            )}
+            <View style={styles.container}>
+                {gridLayout.map(({ id, indexType, row, column }) => (
+                    <View style={styles.item} key={id}>
+                        <Square 
+                            indexType={indexType} 
+                            onPress={() => handlePress(id, indexType, row, column)}
+                            customStyle={highlightedSquares.includes(id) ? blinkStyle : {}}
+                            isDisabled={isDisabled}
+                            errorMove={errorSquare.includes(id) ? errorStyle : {}}     
+                        />
+                    </View>
+                ))}
+            </View>
         </View>
     )   
 }
