@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, Button, StyleSheet, Dimensions, Image, ImageBackground, Animated, Alert } from 'react-native';
 import { useState, useContext, useEffect } from 'react';
 import { CurrentUserContext } from '../context/CurrentUserContext';
+import CustomButton from '../components/CustomButton';
 
 function EndGameScreen({ route, navigation }) {
 
@@ -100,22 +101,23 @@ function EndGameScreen({ route, navigation }) {
 
     return (
         <View style={styles.center}>
-            <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Classement</Text>
-            <Text>Votre score : {score}</Text>
-            {newHighscore && <Text>Nouveau record !!!</Text>}
+            <Image style={styles.image} source={require("../assets/illustrations/marioEtoile.png")} />
+            <Image source={require("../assets/policeMarioImage/classement.png")} />
+            <Text style={styles.baseText}>Votre score : {score}</Text>
+            {newHighscore && <Text style={styles.baseText}>Nouveau record !!!</Text>}
             <View style={styles.header}>
-                <Text style={styles.headerText}>Classement</Text>
-                <Text style={styles.headerText}>Nom</Text>
-                <Text style={styles.headerText}>Score</Text>
+                <Text style={[styles.headerText, styles.baseText]}>Classement</Text>
+                <Text style={[styles.headerText, styles.baseText]}>Nom</Text>
+                <Text style={[styles.headerText, styles.baseText]}>Score</Text>
             </View>
             {classement.map((item, index) => (
                 <View style={styles.row} key={item.id}>
-                    <Text style={styles.cell}>{index + 1}</Text>
-                    <Text style={styles.cell}>{item.name}</Text>
-                    <Text style={styles.cell}>{item.highscore}</Text>
+                    <Text style={[styles.cell, styles.baseText]}>{index + 1}</Text>
+                    <Text style={[styles.cell, styles.baseText]}>{item.name}</Text>
+                    <Text style={[styles.cell, styles.baseText]}>{item.highscore}</Text>
                 </View>
             ))}
-            <Button title='Rejouer' onPress={replay} />
+            <CustomButton text='Rejouer' onPress={replay} />
         </View>
 
     );
@@ -126,8 +128,11 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 20
+        gap: 20,
 
+    },
+    baseText: {
+        fontFamily: 'mario', // Utilisez ici le nom de la police que vous avez chargée
     },
     header: {
         flexDirection: 'row',

@@ -81,9 +81,9 @@ function ProgressBar({ isPaused }) {
 
     return (
         <>
-            <Text>Score: {score} / niveau : {level}</Text>
+            <Text style={{fontFamily: "mario"}}>Score: {score} / niveau : {level}</Text>
             <View style={styles.bar}>
-                <Text style={{ position: 'absolute', zIndex: 1, right: '50%' }}>{progressScore} / {maxScore}</Text>
+                <Text style={{ position: 'absolute', zIndex: 1, right: '50%', fontFamily: "mario" }}>{progressScore} / {maxScore}</Text>
                 <View style={[styles.progress, { width: `${progressScore / maxScore * 100 > 100 ? 100 : progressScore / maxScore * 100}%` }]}>
                 </View>
             </View>
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
     },
     progress: {
         height: '80%',
-        backgroundColor: 'blue',
+        backgroundColor: '#39b449',
         borderRadius: 5,
 
     }

@@ -8,7 +8,7 @@ function Square({indexType, onPress, customStyle, isDisabled, errorMove}) {
 
     return (
         <TouchableOpacity style={[styles.square, customStyle, errorMove]} disabled={isDisabled} onPress={onPress}>
-          {isDisabled ? null : <Image source={getRequireImage(indexType)} />}
+          {isDisabled ? <Image source= {require("../assets/images/fantome.png")} /> : <Image source={getRequireImage(indexType)} />}
         </TouchableOpacity >
     )
 }

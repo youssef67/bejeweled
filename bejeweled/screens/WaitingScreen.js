@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, Button, StyleSheet, Dimensions, Image, ImageBackground, Animated, Alert } from 'react-native';
+import CustomButton from '../components/CustomButton';
 import { useContext } from 'react';
 import { CurrentUserContext } from '../context/CurrentUserContext';
 
@@ -13,8 +14,10 @@ function WaitingScreen({ navigation }) {
 
     return (
         <View style={styles.center}>
-            <Text>Bienvenue {currentUser.name} {currentUser.surname} !!!</Text>
-            <Button title='Jouer' onPress={replay} />
+            <Image style={styles.image} source= {require("../assets/illustrations/marioAll2.png")} />
+            <Image source= {require("../assets/policeMarioImage/marioCrush.png")} />
+            <Text style={{fontFamily: "mario"}}>Bienvenue {currentUser.name} {currentUser.surname} !!!</Text>
+            <CustomButton text='Jouer' onPress={replay} />
         </View>
     );
 }
@@ -25,6 +28,10 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         gap: 20
+    },
+     image: {
+        width: "100%",
+        height: "25%"
     }
 })
 

@@ -11,6 +11,7 @@ import { PointsContext} from '../context/PointsContext';
 import { useIsFocused } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
 import { CurrentUserContext } from '../context/CurrentUserContext';
+import CustomButton from './CustomButton';
 
 
 
@@ -471,16 +472,11 @@ function GameGrid({isPaused}) {
 
     return (
         <View>
-            <View style={{ marginBottom: 10 }}>
-                <Button
-                title="hint"
-                onPress={() => hint()}
-            />
-            </View>
+            
             
             <View>
-                <Text>essais : {tries < 0 ? 0 : tries}</Text>
-                {!hintAvailable ? <Text>Plus d'essais disponibles</Text> : null}
+                <Text style={{fontFamily: "mario", marginBottom: 5}} >essais : {tries < 0 ? 0 : tries}</Text>
+                {!hintAvailable ? <Text style={{fontFamily: "mario", color: "red", marginBottom: 5}}>Plus d'essais disponibles</Text> : null}
             </View>
             <View style={styles.container}>
                 {gridLayout.map(({ id, indexType, row, column }) => (
@@ -494,6 +490,13 @@ function GameGrid({isPaused}) {
                         />
                     </View>
                 ))}
+            </View>
+            <View style={{ marginBottom: 10 , justifyContent: "center", alignItems: "center", marginTop: 15}}>
+                <CustomButton
+                text="hint"
+                onPress={() => hint()}
+                disabled={isPaused ? true : false}
+            />
             </View>
         </View>
     )   

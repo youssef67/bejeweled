@@ -11,11 +11,20 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import GameScreen from "./screens/GameScreen";
 import WaitingScreen from "./screens/WaitingScreen";
 import { CurrentUserProvider } from './context/CurrentUserContext';
+import { useFonts } from "expo-font";
+import { Text } from "react-native";
 
 const Stack = createNativeStackNavigator();
 
 
 export default function App() {
+
+  const [fontsLoaded] = useFonts({
+    "mario": require("./assets/fonts/SuperMario256.ttf"),
+  });
+  if (!fontsLoaded) {
+    return <Text>Loading...</Text>;
+  }
 
   return (
     <CurrentUserProvider>
@@ -31,5 +40,3 @@ export default function App() {
     </CurrentUserProvider>
   );
 }
-
-

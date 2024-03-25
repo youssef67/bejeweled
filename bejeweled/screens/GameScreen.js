@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, Button, StyleSheet, Dimensions, Image, ImageBackground, Animated, Alert } from 'react-native';
+import CustomButton from '../components/CustomButton';
 import GameGrid from "../components/GameGrid";
 import { useState, useContext } from 'react';
 import ProgressBar from '../components/ProgressBar';
@@ -20,7 +21,7 @@ function GameScreen() {
     return (
         <PointsProvider>
             <ImageBackground source={require("../assets/CloudsBackground.png")} style={styles.backGroundImage}>
-                <Button title={!isPaused ? "Pause" : "Redemarrer"} onPress={handlePause} />
+                <CustomButton text={!isPaused ? "Pause" : "Redemarrer"} onPress={handlePause} />
                 <GameGrid isPaused = {isPaused}/>
                 <ProgressBar isPaused={isPaused}/>
             </ImageBackground>

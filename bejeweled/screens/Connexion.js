@@ -1,10 +1,12 @@
 import CustomButton from "../components/CustomButton";
 import CustomInput from "../components/CustomInput";
-import { StyleSheet, View, Alert, Text, TouchableOpacity } from "react-native";
+import { StyleSheet, View, Alert, Text, TouchableOpacity,Image } from "react-native";
 import { useState, useContext } from "react";
 import { CurrentUserContext } from "../context/CurrentUserContext";
+import { useFonts } from "expo-font";
 
 function Connexion({ navigation }) {
+    
 
     const [email, setEmail] = useState('you.moudni@gmail.com')
     const [password, setPassword] = useState('1234')
@@ -39,13 +41,13 @@ function Connexion({ navigation }) {
     return (
 
         <View style={styles.center}>
-            <Text>Connexion</Text>
+            <Image source= {require("../assets/policeMarioImage/connexion.png")} />
             <View style={{ display: "flex", width: '100%', alignItems: "center", gap: 3 }}>
                 <CustomInput text="Email" onChangeText={text => setEmail(text)} value={email} />
                 <CustomInput text="Mot de Passe" onChangeText={text => setPassword(text)} value={password} secureTextEntry />
             </View>
             <CustomButton text="Connexion" onPress={handleConnexion} />
-            <TouchableOpacity onPress={() => navigation.navigate('Inscription')} ><Text>Inscription</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('Inscription')} ><Text style={{fontFamily : "mario", color: "#39b449"}}>Inscription</Text></TouchableOpacity>
         </View>
     );
 }
@@ -56,7 +58,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         gap: 20
-    }
+    },
 })
 
 export default Connexion;

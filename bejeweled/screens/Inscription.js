@@ -1,6 +1,6 @@
 import CustomButton from "../components/CustomButton";
 import CustomInput from "../components/CustomInput";
-import { StyleSheet, View, Alert, Text, TouchableOpacity } from "react-native";
+import { StyleSheet, View, Alert, Text, TouchableOpacity, Image } from "react-native";
 import { useState } from "react";
 
 function Inscription({ navigation }) {
@@ -56,7 +56,7 @@ function Inscription({ navigation }) {
     return (
 
         <View style={styles.center}>
-            <Text>Inscription</Text>
+            <Image source= {require("../assets/policeMarioImage/inscription.png")} />
             <View style={{ display: "flex", width: '100%', alignItems: "center", gap: 3 }}>
                 <CustomInput text="Email" onChangeText={text => setEmail(text)} value={email} />
                 <CustomInput text="Nom" onChangeText={text => setNom(text)} value={nom} autoCapitalize='sentences'/>          
@@ -65,7 +65,7 @@ function Inscription({ navigation }) {
                 <CustomInput text="Confirmez le mot de passe" onChangeText={text => setPassword2(text)} value={password2} secureTextEntry />
             </View>
             <CustomButton text="S'inscrire" onPress={handleInscription} />
-            <TouchableOpacity onPress={() => navigation.navigate('Connexion')} ><Text>Connexion</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('Connexion')} ><Text style={{fontFamily : "mario", color: "#39b449"}}>Connexion</Text></TouchableOpacity>
         </View>
 
     );
