@@ -30,6 +30,7 @@ function GameGrid({isPaused}) {
     const [firstRender, setFirstRender] = useState(false)
     const [firstClick, setFirstClick] = useState(null)
     const [secondClick, setSecondClick] = useState(null)
+    const [hintAvailable, setHintAvailable] = useState(true)
     const [tries, setTries] = useState(2)
     const {points, setPoints} = useContext(PointsContext);
     const { currentUser, setCurrentUser } = useContext(CurrentUserContext)
@@ -219,7 +220,7 @@ function GameGrid({isPaused}) {
                 setTries(prev => prev - 1)
                 let triesUpdate = tries - 1;
 
-                if (triesUpdate == 0) {
+                if (triesUpdate < 0) {
                     navigation.navigate('EndGameScreen', { score: currentUser.score }); 
                 }else {
                     setErrorSquare([firstClick.id, secondClick.id])
@@ -375,9 +376,7 @@ function GameGrid({isPaused}) {
         setTries(prev => prev - 1)
         let triesUpdate = tries - 1;
 
-        if (triesUpdate == 0) {
-            navigation.navigate('EndGameScreen', { score: currentUser.score }); 
-        } else {
+        if (triesUpdate > - 1) {
             let tempGridLayout = gridLayout.map(e => Array.isArray(e) ? [...e] : e)
             let allCombination = []
             let combinationFound = false;
@@ -448,6 +447,16 @@ function GameGrid({isPaused}) {
                 createFirstRenderGridLayout()
                 console.log("pas de combinaison")
             } 
+        } else {
+
+            if (triesUpdate < 0) {
+                setHintAvailable(false)
+
+                setTimeout(() => {
+                    setHintAvailable(true)
+                }, 2000);
+            }
+
         }
         
     }
@@ -468,8 +477,10 @@ function GameGrid({isPaused}) {
                 onPress={() => hint()}
             />
             </View>
+            
             <View>
-                <Text>essais : {tries}</Text>
+                <Text>essais : {tries < 0 ? 0 : tries}</Text>
+                {!hintAvailable ? <Text>Plus d'essais disponibles</Text> : null}
             </View>
             <View style={styles.container}>
                 {gridLayout.map(({ id, indexType, row, column }) => (
