@@ -93,7 +93,6 @@ function ProgressBar({ isPaused }) {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -101,10 +100,7 @@ const styles = StyleSheet.create({
         height: 30,
         backgroundColor: 'lightblue',
         borderRadius: 10,
-        width: '80%',
-        display: 'flex',
         justifyContent: 'center',
-        alignItems: 'start',
         paddingHorizontal: 5,
         position: 'relative'
     },

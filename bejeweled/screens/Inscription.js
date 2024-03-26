@@ -40,17 +40,19 @@ function Inscription({ navigation }) {
                 email: email,
                 password: password
             })
+        }).then(response => response.json())
+        .then(data => {
+            if(!data.success) { return Alert.alert(data.message) }
+            
+            Alert.alert('Inscription réussie')
+            setEmail('');
+            setPassword('');
+            setPassword2('');
+            setNom('');
+            setPrenom('');
+            navigation.navigate('Connexion')
+      
         })
-            .then(response => response.json())
-            .then(data => {
-                if(!data.success) {return Alert.alert(data.message)}
-                Alert.alert('Inscription réussie')
-                setEmail('');
-                setPassword('');
-                setPassword2('');
-                setNom('');
-                setPrenom('');      
-            })
     }
 
     return (

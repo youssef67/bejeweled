@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Button, StyleSheet, Dimensions, Image, ImageBackground, Animated, Alert } from 'react-native';
+import { View, Text, StyleSheet, Image, Alert } from 'react-native';
 import { useState, useContext, useEffect } from 'react';
 import { CurrentUserContext } from '../context/CurrentUserContext';
 import CustomButton from '../components/CustomButton';
@@ -10,7 +10,6 @@ function EndGameScreen({ route, navigation }) {
     const [classement, setClassement] = useState(null)
     const [loading, setLoading] = useState(true)
     const [newHighscore, setNewHighscore] = useState(false)
-
 
     const { score } = route.params
 
@@ -76,16 +75,14 @@ function EndGameScreen({ route, navigation }) {
                 score: score,
                 user: currentUser.id
             })
+        }).then(response => response.json())
+        .then(data => {
+            console.log(data);
         })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-            })
-            .catch(error => {
-                console.error("Erreur lors de l'envoi de la partie", error);
-            });
-    }
-        , [])
+        .catch(error => {
+            console.error("Erreur lors de l'envoi de la partie", error);
+        });
+    }, [])
 
     if (loading) {
         return (
@@ -98,6 +95,11 @@ function EndGameScreen({ route, navigation }) {
     const replay = () => {
         navigation.navigate('GameScreen')
     }
+
+    const quit = () => {
+        navigation.navigate('WaitingScreen')
+    }
+
 
     return (
         <View style={styles.center}>
@@ -117,7 +119,11 @@ function EndGameScreen({ route, navigation }) {
                     <Text style={[styles.cell, styles.baseText]}>{item.highscore}</Text>
                 </View>
             ))}
-            <CustomButton text='Rejouer' onPress={replay} />
+            <View style={styles.containerBtn}>
+                <CustomButton text='Rejouer' onPress={replay} colorGreen={true} inContainer={true}/>
+                <CustomButton text='Quitter' onPress={quit} inContainer={true}/>
+            </View>
+
         </View>
 
     );
@@ -156,7 +162,14 @@ const styles = StyleSheet.create({
         flex: 1,
         fontSize: 16,
         textAlign: 'center'
-    }
+    },
+    containerBtn : {
+        justifyContent: 'center',
+        alignItems: 'center',
+        flexDirection: 'row',
+        marginBottom : 25,
+        gap: 10,
+    },   
 })
 
 export default EndGameScreen;

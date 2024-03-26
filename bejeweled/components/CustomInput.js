@@ -3,12 +3,12 @@ import { TextInput, StyleSheet } from 'react-native'
 function CustomInput({text, onChangeText, value, secureTextEntry, autoCapitalize}) {
     return (  
         <TextInput 
-        style={styles.input}
-        placeholder={text}
-        onChangeText={onChangeText}
-        value={value}
-        secureTextEntry={secureTextEntry ?? false}
-        autoCapitalize={autoCapitalize ?? 'none'}
+            style={styles.input}
+            placeholder={text}
+            onChangeText={onChangeText}
+            value={value}
+            secureTextEntry={secureTextEntry ?? false}
+            autoCapitalize={autoCapitalize ?? 'none'}
         />
     );
 }
@@ -23,4 +23,5 @@ const styles = StyleSheet.create({
         borderRadius : 10
     }
 })
+
 export default CustomInput;

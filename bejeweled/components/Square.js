@@ -2,10 +2,7 @@ import {StyleSheet, TouchableOpacity, Image } from 'react-native';
 import  React from 'react';
 import { getRequireImage } from "../core/utils";
 
-
-
 function Square({indexType, onPress, customStyle, isDisabled, errorMove}) {
-
     return (
         <TouchableOpacity style={[styles.square, customStyle, errorMove]} disabled={isDisabled} onPress={onPress}>
           {isDisabled ? <Image source= {require("../assets/images/fantome.png")} /> : <Image source={getRequireImage(indexType)} />}
@@ -21,6 +18,5 @@ const styles = StyleSheet.create({
       borderColor: 'gray',
     },
   });
-
 
 export default Square;

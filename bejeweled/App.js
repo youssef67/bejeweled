@@ -1,8 +1,4 @@
-import { StyleSheet } from 'react-native';
 import React from 'react';
-// import GridLayout from './components/GridLayout';
-import GameProvider from './context/GameProvider';
-import ProgressBar from './components/ProgressBar';
 import Connexion from './screens/Connexion';
 import Inscription from './screens/Inscription';
 import EndGameScreen from './screens/EndGameScreen';
@@ -15,7 +11,6 @@ import { useFonts } from "expo-font";
 import { Text } from "react-native";
 
 const Stack = createNativeStackNavigator();
-
 
 export default function App() {
 

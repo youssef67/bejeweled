@@ -1,11 +1,5 @@
 import  React, {useEffect, useState, useContext} from 'react';
-import { View, StyleSheet, Alert, Text, Button} from 'react-native';
-import { testEnchainementDeTroisPlusTroisSurColonne, 
-        testEnchainementDeTroisEtTroisSurColonneEtLignePlusTrois, 
-        testEnchainementDeCinqEtTroisSurColonneEtLignePlusCinqPlusTrois,
-        testHint,
-        testHintSansResultat } 
-        from "../core/var_test";
+import { View, StyleSheet, Text} from 'react-native';
 import Square from './Square';
 import { PointsContext} from '../context/PointsContext';
 import { useIsFocused } from '@react-navigation/native';
@@ -13,20 +7,17 @@ import { useNavigation } from '@react-navigation/native';
 import { CurrentUserContext } from '../context/CurrentUserContext';
 import CustomButton from './CustomButton';
 
-
-
 function GameGrid({isPaused}) {
 
     const isFocused = useIsFocused();
     const navigation = useNavigation();
 
-
     const [gridLayout, setGridLayout] = useState([])
     const [blinkStyle, setBlinkStyle] = useState({})
     const [isDisabled, setIsDisabled] = useState(null)
     const [highlightedSquares, setHighlightedSquares] = useState([])
-    const [errorSquare, setErrorSquare] = useState([])
-    const [errorStyle, setErrorStyle] = useState(null)
+    const [colorSquare, setColorSquare] = useState([])
+    const [squareStyle, setSquareStyle] = useState(null)
 
     const [firstRender, setFirstRender] = useState(false)
     const [firstClick, setFirstClick] = useState(null)
@@ -37,7 +28,6 @@ function GameGrid({isPaused}) {
     const { currentUser, setCurrentUser } = useContext(CurrentUserContext)
   
     useEffect(() => {
-        console.log("call createFirstRenderGridLayout")
         if(!firstRender)
             createFirstRenderGridLayout()
 
@@ -48,7 +38,6 @@ function GameGrid({isPaused}) {
 
     useEffect(() => {
         if (isFocused) {
-            console.log("isFocused")
             // Réinitialisez les variables ici
             setTries(2)
             setCurrentUser(prevCurrent => ({
@@ -73,8 +62,7 @@ function GameGrid({isPaused}) {
 
                 setBlinkStyle(prevStyle => ({
                     ...prevStyle,
-                    borderWidth : prevStyle.borderWidth === 1 ? 2 : 1,
-                    borderColor: prevStyle.borderColor === 'gray' ? 'red' : 'gray'
+                    backgroundColor : prevStyle.backgroundColor === "#32CD32" ? 'transparent' : "#32CD32",
                 }))
                 blinkCount += 1
 
@@ -84,24 +72,30 @@ function GameGrid({isPaused}) {
                     setBlinkStyle({})
                     setHighlightedSquares([])
                 }
-            }, 500)
+            }, 250)
 
             return () => clearInterval(interval)
         }
 
 
-        if (errorSquare.length > 0) {
-            setErrorStyle(
-                {backgroundColor : "#dc143c"}
-            )
-
-            setTimeout(() => {
-                setErrorSquare([])
-                setErrorStyle({})
-            }, 500);
+        if (colorSquare.length > 0) {
+            if (colorSquare.length == 1) {
+                setSquareStyle(
+                    {backgroundColor : "#32CD32"}
+                )
+            } else {
+                setSquareStyle(
+                    {backgroundColor : "#dc143c"}
+                )
+    
+                setTimeout(() => {
+                    setColorSquare([])
+                    setSquareStyle({})
+                }, 500);
+            }
         }
         
-    }, [isPaused, highlightedSquares, errorSquare])
+    }, [isPaused, highlightedSquares, colorSquare])
 
 
     // Création de la grille au démarrage
@@ -122,15 +116,7 @@ function GameGrid({isPaused}) {
         // Si au 1er rendu, presence de combinaisons - on relance la fonction
         if(getScoreFromGridLayout(tempGridLayout).scoreAllGridLayout > 0) createFirstRenderGridLayout()
         else {
-            console.log("tempGridLayout mise en place")
-            //*** DEBUT VARIABLES DE TEST ***/
-            // setGridLayout(testEnchainementDeTroisPlusTroisSurColonne)
-            // setGridLayout(testEnchainementDeTroisEtTroisSurColonneEtLignePlusTrois)
-            setGridLayout(testEnchainementDeCinqEtTroisSurColonneEtLignePlusCinqPlusTrois)
-            // setGridLayout(testHintSansResultat)
-            //*** FIN VARIABLES DE TEST ***/
-
-            // setGridLayout(tempGridLayout)
+            setGridLayout(tempGridLayout)
             setFirstRender(true)
         } 
     }
@@ -139,6 +125,8 @@ function GameGrid({isPaused}) {
     const handlePress = (id, indexType, row, column) => {
 
         if (firstClick === null) {
+            setColorSquare([id])
+
             setFirstClick(prevState => {
                 return {
                     id : id,
@@ -148,6 +136,9 @@ function GameGrid({isPaused}) {
                 }
             })
         } else {
+            setColorSquare([])
+            setSquareStyle({})
+
             setSecondClick(prevState => {
                 return {
                     id : id,
@@ -169,6 +160,7 @@ function GameGrid({isPaused}) {
         let diffRow = Math.abs(firstClick.row - secondClick.row)
 
         if((diffCol === 0 && diffRow === 0) ||  (diffCol > 1 || diffRow > 1)) {
+            setColorSquare([firstClick.id, secondClick.id])
             console.log("erreur dans le mvt, pas case adjacente")
         } else {
             //Changement d'images
@@ -186,7 +178,7 @@ function GameGrid({isPaused}) {
                 // Si sur le 1er check, l'utilisateur à scoré et par conséquent provoqué une modification de la GRID
                 // Lancement des vérifications complémentaires
                 if (scoreAfterMove > 0) additionalCheck()
-            }, 800);
+            }, 400);
         }
     
         setFirstClick(null)
@@ -224,8 +216,7 @@ function GameGrid({isPaused}) {
                 if (triesUpdate < 0) {
                     navigation.navigate('EndGameScreen', { score: currentUser.score }); 
                 }else {
-                    setErrorSquare([firstClick.id, secondClick.id])
-                    console.log("erreur, pas de score effectué")
+                    setColorSquare([firstClick.id, secondClick.id])
                 }
                 
             }
@@ -297,7 +288,7 @@ function GameGrid({isPaused}) {
                 additionalCheck()
             } 
                 
-        }, 800);
+        }, 400);
     }
 
 
@@ -462,7 +453,6 @@ function GameGrid({isPaused}) {
         
     }
     
-
     function containsArray(haystack, needle) {
         return haystack.some(innerArray =>
             innerArray.length === needle.length && innerArray.every((value, index) => value === needle[index])
@@ -471,9 +461,7 @@ function GameGrid({isPaused}) {
 
 
     return (
-        <View>
-            
-            
+        <View>   
             <View>
                 <Text style={{fontFamily: "mario", marginBottom: 5}} >essais : {tries < 0 ? 0 : tries}</Text>
                 {!hintAvailable ? <Text style={{fontFamily: "mario", color: "red", marginBottom: 5}}>Plus d'essais disponibles</Text> : null}
@@ -486,12 +474,12 @@ function GameGrid({isPaused}) {
                             onPress={() => handlePress(id, indexType, row, column)}
                             customStyle={highlightedSquares.includes(id) ? blinkStyle : {}}
                             isDisabled={isDisabled}
-                            errorMove={errorSquare.includes(id) ? errorStyle : {}}     
+                            errorMove={colorSquare.includes(id) ? squareStyle : {}}     
                         />
                     </View>
                 ))}
             </View>
-            <View style={{ marginBottom: 10 , justifyContent: "center", alignItems: "center", marginTop: 15}}>
+            <View style={{ marginBottom: 10 , justifyContent: "center", alignItems: "center", marginTop: 25}}>
                 <CustomButton
                 text="hint"
                 onPress={() => hint()}
@@ -510,10 +498,9 @@ const styles = StyleSheet.create({
       margin: 'auto', 
     },
     item: {
-        width: '12.5%', // Calcul pour s'adapter à 8 colonnes
-        aspectRatio: 1, // Garantir que le conteneur de la case est carré
-      },
-    
+      width: '12.5%', // Calcul pour s'adapter à 8 colonnes
+      aspectRatio: 1, // Garantir que le conteneur de la case est carré
+    }
   });
 
 export default GameGrid

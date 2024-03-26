@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Button, StyleSheet, Dimensions, Image, ImageBackground, Animated, Alert } from 'react-native';
+import { View, Text, StyleSheet, Image } from 'react-native';
 import CustomButton from '../components/CustomButton';
 import { useContext } from 'react';
 import { CurrentUserContext } from '../context/CurrentUserContext';
@@ -12,12 +12,18 @@ function WaitingScreen({ navigation }) {
         navigation.navigate('GameScreen')
     }
 
+    const disconnect = () => {
+        setCurrentUser({})
+        navigation.navigate('Connexion')
+    }
+
     return (
         <View style={styles.center}>
             <Image style={styles.image} source= {require("../assets/illustrations/marioAll2.png")} />
             <Image source= {require("../assets/policeMarioImage/marioCrush.png")} />
             <Text style={{fontFamily: "mario"}}>Bienvenue {currentUser.name} {currentUser.surname} !!!</Text>
-            <CustomButton text='Jouer' onPress={replay} />
+            <CustomButton text='Jouer' onPress={replay} colorGreen={true} />
+            <CustomButton text='Se deconnecter' onPress={disconnect} />
         </View>
     );
 }

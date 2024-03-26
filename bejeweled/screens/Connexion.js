@@ -3,13 +3,12 @@ import CustomInput from "../components/CustomInput";
 import { StyleSheet, View, Alert, Text, TouchableOpacity,Image } from "react-native";
 import { useState, useContext } from "react";
 import { CurrentUserContext } from "../context/CurrentUserContext";
-import { useFonts } from "expo-font";
 
 function Connexion({ navigation }) {
     
 
-    const [email, setEmail] = useState('you.moudni@gmail.com')
-    const [password, setPassword] = useState('1234')
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
     const { setCurrentUser } = useContext(CurrentUserContext)
 
     const handleConnexion = () => {
@@ -26,17 +25,15 @@ function Connexion({ navigation }) {
                 email: email,
                 password: password
             })
+        }).then(response => response.json())
+        .then(data => {
+            if (!data.success) { return Alert.alert(data.message) }
+            setCurrentUser({ id: data.id, highscore: data.highscore, name : data.name, surname : data.surname, score : 0});
+            setEmail('')
+            setPassword('')
+            navigation.navigate('WaitingScreen')
         })
-            .then(response => response.json())
-            .then(data => {
-                if (!data.success) { return Alert.alert(data.message) }
-                setCurrentUser({ id: data.id, highscore: data.highscore, name : data.name, surname : data.surname, score : 0});
-                navigation.navigate('WaitingScreen')
-            }
-            )
     }
-
-
 
     return (
 
