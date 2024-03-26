@@ -13,6 +13,10 @@ function EndGameScreen({ route, navigation }) {
 
     const { score } = route.params
 
+    let show = false;
+    if (route.params.show != null) show  = route.params.show
+    
+
     useEffect(() => {
 
         if (score > currentUser.highscore) {
@@ -100,13 +104,22 @@ function EndGameScreen({ route, navigation }) {
         navigation.navigate('WaitingScreen')
     }
 
-
+    console.log(show)
     return (
         <View style={styles.center}>
             <Image style={styles.image} source={require("../assets/illustrations/marioEtoile.png")} />
             <Image source={require("../assets/policeMarioImage/classement.png")} />
+        
+            {!show ? 
             <Text style={styles.baseText}>Votre score : {score}</Text>
-            {newHighscore && <Text style={styles.baseText}>Nouveau record !!!</Text>}
+            :
+            null
+            }
+            {newHighscore ? 
+            <Text style={styles.baseText}>Nouveau record !!!</Text>
+            :
+            null
+            }
             <View style={styles.header}>
                 <Text style={[styles.headerText, styles.baseText]}>Classement</Text>
                 <Text style={[styles.headerText, styles.baseText]}>Nom</Text>
@@ -115,14 +128,20 @@ function EndGameScreen({ route, navigation }) {
             {classement.map((item, index) => (
                 <View style={styles.row} key={item.id}>
                     <Text style={[styles.cell, styles.baseText]}>{index + 1}</Text>
-                    <Text style={[styles.cell, styles.baseText]}>{item.name}</Text>
+                    <Text style={[styles.cell, styles.baseText]}>{item.surname} {item.name} </Text>
                     <Text style={[styles.cell, styles.baseText]}>{item.highscore}</Text>
                 </View>
             ))}
+
+            {show ?
+            <CustomButton text='Revenir' onPress={quit} colorGreen={true} inContainer={true}/>
+            :
             <View style={styles.containerBtn}>
                 <CustomButton text='Rejouer' onPress={replay} colorGreen={true} inContainer={true}/>
                 <CustomButton text='Quitter' onPress={quit} inContainer={true}/>
             </View>
+            }
+          
 
         </View>
 

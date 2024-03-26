@@ -17,12 +17,17 @@ function WaitingScreen({ navigation }) {
         navigation.navigate('Connexion')
     }
 
+    const highScore = () => {
+        navigation.navigate('EndGameScreen', { score: currentUser.score, show : true })
+    }
+
     return (
         <View style={styles.center}>
             <Image style={styles.image} source= {require("../assets/illustrations/marioAll2.png")} />
             <Image source= {require("../assets/policeMarioImage/marioCrush.png")} />
             <Text style={{fontFamily: "mario"}}>Bienvenue {currentUser.name} {currentUser.surname} !!!</Text>
             <CustomButton text='Jouer' onPress={replay} colorGreen={true} />
+            <CustomButton text='Liste des scores' onPress={highScore} colorGreen={true} />
             <CustomButton text='Se deconnecter' onPress={disconnect} />
         </View>
     );
